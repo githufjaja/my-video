@@ -6,6 +6,7 @@ import { demoProps } from "./Reel/demo";
 import { myReelProps } from "./Reel/my-reel";
 import { Reel } from "./Reel/Reel";
 import { ritualProps } from "./Reel/ritual";
+import { ritualUkProps } from "./Reel/ritual-uk";
 import { reelSchema } from "./Reel/schema";
 import { ScreenReel, screenReelSchema } from "./Reel/ScreenReel";
 
@@ -68,6 +69,20 @@ export const RemotionRoot: React.FC = () => {
         component={ScreenReel}
         schema={screenReelSchema}
         defaultProps={ritualProps}
+        fps={30}
+        width={1080}
+        height={1920}
+        durationInFrames={1}
+        calculateMetadata={({ props }) => ({
+          durationInFrames: Math.ceil((props.durationMs / 1000) * 30),
+        })}
+      />
+
+      <Composition
+        id="RitualUk"
+        component={ScreenReel}
+        schema={screenReelSchema}
+        defaultProps={ritualUkProps}
         fps={30}
         width={1080}
         height={1920}
