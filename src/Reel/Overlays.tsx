@@ -184,7 +184,148 @@ const Cursor: React.FC = () => (
   </svg>
 );
 
-const SubscribeButton: React.FC<{ clickAt: number }> = ({ clickAt }) => {
+// App icon for the pill tracker: a pearl on an ink tile.
+export const PearlIcon: React.FC<{ size: number }> = ({ size }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48">
+    <defs>
+      <radialGradient id="pearl" cx="0.38" cy="0.34" r="0.7">
+        <stop offset="0" stopColor="#FFFFFF" />
+        <stop offset="0.55" stopColor="#EDE8E1" />
+        <stop offset="1" stopColor="#B9B1A8" />
+      </radialGradient>
+    </defs>
+    <rect width="48" height="48" rx="11" fill={colors.ink} />
+    <circle cx="24" cy="24" r="12.5" fill="url(#pearl)" />
+    <circle
+      cx="24"
+      cy="24"
+      r="16.5"
+      fill="none"
+      stroke={colors.lime}
+      strokeWidth="2"
+    />
+  </svg>
+);
+
+const ReminderCard: React.FC<{
+  app: string;
+  time: string;
+  title: string;
+  text: string;
+  button: string;
+  doneButton: string;
+  doneAt: number;
+}> = ({ app, time, title, text, button, doneButton, doneAt }) => {
+  const frame = useCurrentFrame();
+  const done = interpolate(frame, [doneAt, doneAt + 4], [0, 1], clamp);
+  const isDone = frame >= doneAt;
+  const press = interpolate(
+    frame,
+    [doneAt - 3, doneAt, doneAt + 5],
+    [1, 0.93, 1],
+    clamp,
+  );
+  return (
+    <Card done={done} padding="24px 26px 24px 26px">
+      <div style={{ display: "flex", alignItems: "center", gap: 22 }}>
+        <PearlIcon size={84} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: 22,
+              fontWeight: 600,
+              color: colors.muted,
+            }}
+          >
+            <span>{app}</span>
+            <span>{time}</span>
+          </div>
+          <div
+            style={{
+              fontSize: 36,
+              fontWeight: 800,
+              letterSpacing: "-0.02em",
+              lineHeight: 1.15,
+              marginTop: 2,
+            }}
+          >
+            {title}
+          </div>
+          <div style={{ fontSize: 28, fontWeight: 500, color: "#555" }}>
+            {text}
+          </div>
+        </div>
+        <div
+          style={{
+            fontSize: 26,
+            fontWeight: 700,
+            padding: "18px 26px",
+            borderRadius: 18,
+            whiteSpace: "nowrap",
+            background: isDone ? colors.lime : "#F1F1F1",
+            transform: `scale(${press})`,
+          }}
+        >
+          {isDone ? doneButton : button}
+        </div>
+      </div>
+    </Card>
+  );
+};
+
+const StreakCard: React.FC<{
+  label: string;
+  days: number;
+  total: number;
+  suffix: string;
+}> = ({ label, days, total, suffix }) => {
+  const frame = useCurrentFrame();
+  // One day lights up every 4 frames, starting after the card has landed.
+  const lit = Math.min(days, Math.max(0, Math.floor((frame - 8) / 4) + 1));
+  const done = lit >= days ? 1 : 0;
+  return (
+    <Card done={done} padding="26px 34px 30px">
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "baseline",
+        }}
+      >
+        <div style={{ fontSize: 24, fontWeight: 600, color: colors.muted }}>
+          {label}
+        </div>
+        <div
+          style={{ fontSize: 60, fontWeight: 800, letterSpacing: "-0.03em" }}
+        >
+          {lit} <span style={{ fontSize: 34 }}>{suffix}</span>
+        </div>
+      </div>
+      <div style={{ display: "flex", gap: 12, marginTop: 14 }}>
+        {Array.from({ length: total }).map((_, i) => (
+          <div
+            key={i}
+            style={{
+              flex: 1,
+              height: 44,
+              borderRadius: 12,
+              background: i < lit ? colors.lime : "#EFEFEF",
+              border: `2px solid ${i < lit ? colors.limeBorder : "transparent"}`,
+            }}
+          />
+        ))}
+      </div>
+    </Card>
+  );
+};
+
+const SubscribeButton: React.FC<{
+  clickAt: number;
+  label: string;
+  doneLabel: string;
+}> = ({ clickAt, label, doneLabel }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const subscribed = frame >= clickAt;
@@ -219,7 +360,7 @@ const SubscribeButton: React.FC<{ clickAt: number }> = ({ clickAt }) => {
           whiteSpace: "nowrap",
         }}
       >
-        {subscribed ? "Вы подписаны" : "Подписаться"}
+        {subscribed ? doneLabel : label}
       </div>
       <div
         style={{
@@ -271,7 +412,36 @@ export const Overlay: React.FC<{
       );
       break;
     case "subscribe":
-      content = <SubscribeButton clickAt={msToFrame(cue.clickAtMs, fps)} />;
+      content = (
+        <SubscribeButton
+          clickAt={msToFrame(cue.clickAtMs, fps)}
+          label={cue.label ?? "Подписаться"}
+          doneLabel={cue.doneLabel ?? "Вы подписаны"}
+        />
+      );
+      break;
+    case "reminder":
+      content = (
+        <ReminderCard
+          app={cue.app}
+          time={cue.time}
+          title={cue.title}
+          text={cue.text}
+          button={cue.button}
+          doneButton={cue.doneButton}
+          doneAt={msToFrame(cue.doneAtMs, fps)}
+        />
+      );
+      break;
+    case "streak":
+      content = (
+        <StreakCard
+          label={cue.label}
+          days={cue.days}
+          total={cue.total}
+          suffix={cue.suffix}
+        />
+      );
       break;
   }
 

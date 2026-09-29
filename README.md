@@ -61,6 +61,18 @@ Tokens live in `src/Reel/theme.ts`, the full timeline of the original reel is in
 3. Add titles / overlays / zooms in `src/Reel/my-reel.ts`, preview with `npm run dev`.
 4. `npx remotion render MyReel out/my-reel.mp4`
 
+## Perla Helsa «Ритуал» demo (`Ritual`)
+
+`src/Reel/ScreenReel.tsx` cuts a horizontal screen recording into the same
+vertical reel: the recording plays in a rounded window over a blurred copy of
+itself, with speed-ups (`segments`) and smooth push-ins (`camera`). The edit,
+script and cards for the pill tracker live in `src/Reel/ritual.ts`; the
+recording is `public/ritual-demo.mp4`.
+
+```console
+npx remotion render Ritual out/ritual-perla-helsa.mp4
+```
+
 ## Docs
 
 Get started with Remotion by reading the [fundamentals page](https://www.remotion.dev/docs/the-fundamentals).

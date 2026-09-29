@@ -5,7 +5,9 @@ import { Logo } from "./HelloWorld/Logo";
 import { demoProps } from "./Reel/demo";
 import { myReelProps } from "./Reel/my-reel";
 import { Reel } from "./Reel/Reel";
+import { ritualProps } from "./Reel/ritual";
 import { reelSchema } from "./Reel/schema";
+import { ScreenReel, screenReelSchema } from "./Reel/ScreenReel";
 
 // Each <Composition> is an entry in the sidebar!
 
@@ -51,6 +53,21 @@ export const RemotionRoot: React.FC = () => {
         component={Reel}
         schema={reelSchema}
         defaultProps={myReelProps}
+        fps={30}
+        width={1080}
+        height={1920}
+        durationInFrames={1}
+        calculateMetadata={({ props }) => ({
+          durationInFrames: Math.ceil((props.durationMs / 1000) * 30),
+        })}
+      />
+
+      {/* Perla Helsa "Ритуал" tracker demo, cut from a screen recording. */}
+      <Composition
+        id="Ritual"
+        component={ScreenReel}
+        schema={screenReelSchema}
+        defaultProps={ritualProps}
         fps={30}
         width={1080}
         height={1920}

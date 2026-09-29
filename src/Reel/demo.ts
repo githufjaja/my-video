@@ -82,7 +82,7 @@ const script: [number, string][] = [
 const END = 61.8;
 
 // Spread a page's time across its words proportionally to their length.
-const toPages = (rows: [number, string][], end: number): CaptionPage[] =>
+export const toPages = (rows: [number, string][], end: number): CaptionPage[] =>
   rows.flatMap(([start, text], i) => {
     if (!text) return [];
     const stop = i + 1 < rows.length ? rows[i + 1][0] : end;

@@ -58,12 +58,20 @@ export const Reel: React.FC<ReelProps> = ({
   captions,
   overlays,
   zooms,
-}) => {
+}) => (
+  <AbsoluteFill style={{ backgroundColor: "#000" }}>
+    <Footage src={footage} zooms={zooms} />
+    <Layers titles={titles} captions={captions} overlays={overlays} />
+  </AbsoluteFill>
+);
+
+// Titles, overlay cards and captions: the design system on top of any footage.
+export const Layers: React.FC<
+  Pick<ReelProps, "titles" | "captions" | "overlays">
+> = ({ titles, captions, overlays }) => {
   const { fps } = useVideoConfig();
   return (
-    <AbsoluteFill style={{ backgroundColor: "#000" }}>
-      <Footage src={footage} zooms={zooms} />
-
+    <AbsoluteFill>
       {titles.map((t, i) => {
         const from = msToFrame(t.fromMs, fps);
         const duration = msToFrame(t.toMs, fps) - from;

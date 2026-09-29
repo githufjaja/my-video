@@ -49,6 +49,31 @@ export const overlayCue = z.discriminatedUnion("type", [
     ...cueBase,
     // When the cursor clicks, relative to fromMs.
     clickAtMs: z.number(),
+    // Button text before / after the click. Defaults: Подписаться / Вы подписаны.
+    label: z.string().optional(),
+    doneLabel: z.string().optional(),
+  }),
+  z.object({
+    // Push-style reminder; its button flips to the lime "done" state.
+    type: z.literal("reminder"),
+    ...cueBase,
+    app: z.string(),
+    time: z.string(),
+    title: z.string(),
+    text: z.string(),
+    button: z.string(),
+    doneButton: z.string(),
+    // When the button is tapped, relative to fromMs.
+    doneAtMs: z.number(),
+  }),
+  z.object({
+    // Streak counter: a row of days filling in lime one by one.
+    type: z.literal("streak"),
+    ...cueBase,
+    label: z.string(),
+    days: z.number(),
+    total: z.number(),
+    suffix: z.string(),
   }),
 ]);
 
