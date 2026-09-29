@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   AbsoluteFill,
+  Audio,
   Easing,
   Freeze,
   interpolate,
@@ -43,6 +44,8 @@ export const screenReelSchema = reelSchema
     sourceHeight: z.number(),
     segments: z.array(segment),
     camera: z.array(cameraCue),
+    // Voiceover track in public/, starting at 0. Empty = silent.
+    voiceover: z.string(),
   });
 
 export type ScreenReelProps = z.infer<typeof screenReelSchema>;
@@ -156,6 +159,7 @@ export const ScreenReel: React.FC<ScreenReelProps> = ({
   sourceHeight,
   segments,
   camera,
+  voiceover,
   titles,
   captions,
   overlays,
@@ -186,6 +190,7 @@ export const ScreenReel: React.FC<ScreenReelProps> = ({
         );
       })}
       <Layers titles={titles} captions={captions} overlays={overlays} />
+      {voiceover ? <Audio src={staticFile(voiceover)} /> : null}
     </AbsoluteFill>
   );
 };

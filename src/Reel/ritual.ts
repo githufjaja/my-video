@@ -89,6 +89,7 @@ export const ritualProps: ScreenReelProps = {
   sourceHeight: 966,
   durationMs: s(END),
   segments,
+  voiceover: "",
   camera: [
     { fromMs: 0, x: 650, y: 360, zoom: 1.25 },
     { fromMs: s(2.6), x: 650, y: 483, zoom: 1 },
