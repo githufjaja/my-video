@@ -6,14 +6,20 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
+    "@fontsource-variable/inter": "5.3.0",
+    "@fontsource/jetbrains-mono": "5.3.0",
+    "@fontsource/montserrat": "5.3.0",
+    "@remotion/captions": "4.0.530",
     "@remotion/cli": "4.0.530",
+    "@remotion/fonts": "4.0.530",
+    "@remotion/install-whisper-cpp": "4.0.530",
+    "@remotion/tailwind-v4": "4.0.530",
     "@remotion/zod-types": "4.0.530",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "remotion": "4.0.530",
-    "zod": "4.5.4",
-    "@remotion/tailwind-v4": "4.0.530",
-    "tailwindcss": "4.0.0"
+    "tailwindcss": "4.0.0",
+    "zod": "4.5.4"
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "4.0.530",
@@ -27,7 +33,8 @@
     "dev": "remotion studio",
     "build": "remotion bundle",
     "upgrade": "remotion upgrade",
-    "lint": "eslint src && tsc"
+    "lint": "eslint src && tsc",
+    "captions": "node scripts/captions.mjs"
   },
   "sideEffects": [
     "*.css"

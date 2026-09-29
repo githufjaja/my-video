@@ -2,6 +2,10 @@ import "./index.css";
 import { Composition } from "remotion";
 import { HelloWorld } from "./HelloWorld";
 import { Logo } from "./HelloWorld/Logo";
+import { demoProps } from "./Reel/demo";
+import { myReelProps } from "./Reel/my-reel";
+import { Reel } from "./Reel/Reel";
+import { reelSchema } from "./Reel/schema";
 
 // Each <Composition> is an entry in the sidebar!
 
@@ -25,6 +29,35 @@ export const RemotionRoot: React.FC = () => {
           logoColor1: "#91EAE4",
           logoColor2: "#86A8E7",
         }}
+      />
+
+      {/* Vertical reel in the style of the "Монтаж рилсов в Claude" reference. */}
+      <Composition
+        id="Reel"
+        component={Reel}
+        schema={reelSchema}
+        defaultProps={demoProps}
+        fps={30}
+        width={1080}
+        height={1920}
+        durationInFrames={1}
+        calculateMetadata={({ props }) => ({
+          durationInFrames: Math.ceil((props.durationMs / 1000) * 30),
+        })}
+      />
+
+      <Composition
+        id="MyReel"
+        component={Reel}
+        schema={reelSchema}
+        defaultProps={myReelProps}
+        fps={30}
+        width={1080}
+        height={1920}
+        durationInFrames={1}
+        calculateMetadata={({ props }) => ({
+          durationInFrames: Math.ceil((props.durationMs / 1000) * 30),
+        })}
       />
 
       {/* Mount any React component to make it show up in the sidebar and work on it individually! */}
