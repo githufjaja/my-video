@@ -27,6 +27,9 @@ command -v editly >/dev/null || npm install -g --no-audit --no-fund editly@0.15.
 # yt-dlp + video-use helper deps
 pip install -q -U yt-dlp requests librosa matplotlib pillow numpy
 
+# Таблиці й PDF для агента payroll
+pip install -q pandas openpyxl pdfplumber
+
 # Інструменти агента-дизайнера (HTML → PNG, шрифти, QR); браузер уже є в /opt/pw-browsers
 (cd design && PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install --no-audit --no-fund)
 
