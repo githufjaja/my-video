@@ -1,0 +1,197 @@
+<!doctype html>
+<!-- Зразок картки для маркетплейсів (1200×1200, рендер ×2). Тексти — українською, без помилок, бо набрані шрифтом.
+     Рендер: node render.cjs templates/nfc-nalipka-card.html ../out/card.png -->
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<style>
+@font-face{font-family:Montserrat;font-weight:600;src:url(../node_modules/@fontsource/montserrat/files/montserrat-cyrillic-600-normal.woff2)}
+@font-face{font-family:Montserrat;font-weight:700;src:url(../node_modules/@fontsource/montserrat/files/montserrat-cyrillic-700-normal.woff2)}
+@font-face{font-family:Montserrat;font-weight:800;src:url(../node_modules/@fontsource/montserrat/files/montserrat-cyrillic-800-normal.woff2)}
+@font-face{font-family:Montserrat;font-weight:900;src:url(../node_modules/@fontsource/montserrat/files/montserrat-cyrillic-900-normal.woff2)}
+@font-face{font-family:Montserrat;font-weight:600;src:url(../node_modules/@fontsource/montserrat/files/montserrat-latin-600-normal.woff2)}
+@font-face{font-family:Montserrat;font-weight:700;src:url(../node_modules/@fontsource/montserrat/files/montserrat-latin-700-normal.woff2)}
+@font-face{font-family:Montserrat;font-weight:800;src:url(../node_modules/@fontsource/montserrat/files/montserrat-latin-800-normal.woff2)}
+@font-face{font-family:Montserrat;font-weight:900;src:url(../node_modules/@fontsource/montserrat/files/montserrat-latin-900-normal.woff2)}
+@font-face{font-family:Inter;font-weight:500;src:url(../node_modules/@fontsource/inter/files/inter-cyrillic-500-normal.woff2)}
+@font-face{font-family:Inter;font-weight:600;src:url(../node_modules/@fontsource/inter/files/inter-cyrillic-600-normal.woff2)}
+@font-face{font-family:Inter;font-weight:500;src:url(../node_modules/@fontsource/inter/files/inter-latin-500-normal.woff2)}
+@font-face{font-family:Inter;font-weight:600;src:url(../node_modules/@fontsource/inter/files/inter-latin-600-normal.woff2)}
+@font-face{font-family:Caveat;font-weight:700;src:url(../node_modules/@fontsource/caveat/files/caveat-cyrillic-700-normal.woff2)}
+@font-face{font-family:Caveat;font-weight:700;src:url(../node_modules/@fontsource/caveat/files/caveat-latin-700-normal.woff2)}
+
+:root{
+  --blue:#2f63c8; --blue-d:#1d4aa6; --ink:#0f1b33; --muted:#55627a;
+  --yellow:#fbbc05; --green:#34a853; --red:#ea4335;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1200px;height:1200px;background:#f4f7fc}
+body{font-family:Inter,sans-serif;color:var(--ink);overflow:hidden;position:relative}
+
+/* background */
+.bg{position:absolute;inset:0;
+  background:
+    radial-gradient(520px 420px at 92% 8%, rgba(66,133,244,.20), transparent 70%),
+    radial-gradient(420px 380px at 4% 52%, rgba(52,168,83,.10), transparent 70%),
+    radial-gradient(380px 300px at 70% 62%, rgba(251,188,5,.14), transparent 70%),
+    linear-gradient(180deg,#f7faff 0%,#eef3fb 100%);}
+.dots{position:absolute;right:40px;top:300px;width:200px;height:140px;
+  background-image:radial-gradient(rgba(47,99,200,.22) 2px,transparent 2.5px);background-size:18px 18px;}
+
+/* header */
+.head{position:absolute;left:64px;top:60px;width:560px}
+.tag{display:inline-flex;align-items:center;gap:10px;background:#fff;border-radius:999px;padding:9px 18px 9px 10px;
+  font:600 17px Inter;color:var(--blue-d);box-shadow:0 4px 14px rgba(29,74,166,.10)}
+.tag i{width:28px;height:28px;border-radius:50%;background:var(--blue);display:grid;place-items:center}
+h1{font:900 76px/0.98 Montserrat;letter-spacing:-2px;margin-top:22px}
+h1 .nfc{background:linear-gradient(90deg,#2f63c8,#4c8df6);-webkit-background-clip:text;color:transparent}
+h1 small{display:block;font:800 46px/1.1 Montserrat;letter-spacing:-1px;margin-top:8px}
+.sub{margin-top:22px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;font:600 19px Inter;color:var(--muted)}
+.sub b{color:var(--ink)}
+.sub .sep{width:6px;height:6px;border-radius:50%;background:var(--yellow)}
+
+/* features */
+.feats{position:absolute;left:64px;top:350px;width:470px;display:flex;flex-direction:column;gap:16px}
+.feat{display:flex;gap:16px;align-items:center;background:rgba(255,255,255,.85);border-radius:20px;padding:14px 18px;
+  box-shadow:0 6px 20px rgba(15,27,51,.06)}
+.feat .ic{flex:none;width:52px;height:52px;border-radius:15px;display:grid;place-items:center}
+.feat h3{font:800 20px Montserrat}
+.feat p{font:500 15.5px/1.35 Inter;color:var(--muted);margin-top:2px}
+
+/* product */
+.stage{position:absolute;left:575px;top:86px;width:580px;height:600px;perspective:1600px}
+.podium{position:absolute;left:40px;top:506px;width:500px;height:86px;border-radius:50%;
+  background:radial-gradient(ellipse at 50% 35%,#ffffff 0%,#e6ecf6 70%);box-shadow:0 18px 40px rgba(29,74,166,.14)}
+.sticker-wrap{position:absolute;left:58px;top:20px;transform:rotateY(-14deg) rotateX(5deg) rotateZ(-2deg);transform-style:preserve-3d}
+.sticker{width:470px;height:461px;border-radius:30px;background:#fff;padding:12px;position:relative;
+  box-shadow:0 2px 0 #dfe5ef, 0 30px 60px rgba(15,27,51,.22), 0 8px 18px rgba(15,27,51,.10)}
+.sticker .inner{width:100%;height:100%;border-radius:20px;border:2.5px solid #2a57b0;overflow:hidden;position:relative;background:#fff}
+.sticker .top{position:absolute;left:0;top:0;right:0;height:228px;background:linear-gradient(180deg,#3569cd,#2c5cbf)}
+.sticker .wave{position:absolute;left:0;top:196px;width:100%;height:60px}
+.g{position:absolute;left:22px;top:26px;width:104px;height:104px;border-radius:50%;background:#fff;display:grid;place-items:center;
+  box-shadow:0 4px 10px rgba(0,0,0,.15)}
+.st-title{position:absolute;left:140px;top:24px;right:14px;color:#fff;font:800 27px/1.12 Montserrat}
+.st-title .star{color:var(--yellow)}
+.st-cta{position:absolute;left:142px;top:128px;color:#fff;font:700 15px Montserrat}
+.st-stars{position:absolute;left:150px;top:152px;color:var(--yellow);font-size:31px;letter-spacing:4px;line-height:1}
+.st-l{position:absolute;left:18px;top:248px;width:205px;text-align:center;font:700 16.5px/1.2 Montserrat;color:#111}
+.st-r{position:absolute;right:16px;top:248px;width:170px;text-align:center;font:700 16.5px/1.2 Montserrat;color:#111}
+.st-or{position:absolute;left:224px;top:352px;font:700 18px Montserrat;color:#111}
+.st-nfc{position:absolute;left:18px;top:300px}
+.st-qr{position:absolute;right:28px;top:300px;width:146px;height:146px;padding:14px}
+.st-qr .br{position:absolute;width:26px;height:26px;border:3.5px solid #111}
+.st-qr img{width:100%;height:100%;display:block}
+
+.note{position:absolute;left:872px;top:618px;font:700 34px/1 Caveat;color:var(--blue-d);transform:rotate(-5deg);text-align:center;width:280px}
+.note svg{position:absolute;left:-74px;top:-58px}
+
+/* steps */
+.steps-h{position:absolute;left:64px;top:722px;right:64px;display:flex;align-items:baseline;gap:20px}
+.steps-h h2{font:900 40px Montserrat;letter-spacing:-.5px}
+.steps-h .line{flex:1;height:3px;background:linear-gradient(90deg,var(--blue),transparent);border-radius:2px;transform:translateY(-10px)}
+.steps-h span{font:600 19px Inter;color:var(--muted)}
+.steps{position:absolute;left:64px;right:64px;top:790px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:26px}
+.step{background:#fff;border-radius:24px;padding:20px 20px 0;height:262px;position:relative;overflow:hidden;
+  box-shadow:0 10px 30px rgba(15,27,51,.08)}
+.step .n{position:absolute;left:18px;top:18px;width:44px;height:44px;border-radius:50%;background:var(--blue);color:#fff;
+  font:900 22px Montserrat;display:grid;place-items:center;box-shadow:0 6px 14px rgba(47,99,200,.35)}
+.step h4{margin-left:58px;font:800 16px/1.25 Montserrat;min-height:60px;letter-spacing:-.1px}
+.step .ill{position:absolute;left:0;right:0;bottom:0;height:180px;background:linear-gradient(180deg,#f3f7ff,#e8f0fd)}
+.arrow{position:absolute;top:938px;width:34px;height:34px;border-radius:50%;background:#fff;display:grid;place-items:center;
+  box-shadow:0 4px 12px rgba(15,27,51,.12);z-index:2}
+
+/* mini phone */
+.phone{position:absolute;bottom:-26px;width:150px;height:200px;border-radius:24px;background:#111a2e;padding:7px}
+.phone .scr{width:100%;height:100%;border-radius:18px;background:#fff;padding:22px 12px 0;text-align:center;position:relative}
+.phone .notch{position:absolute;left:50%;top:7px;width:44px;height:9px;margin-left:-22px;border-radius:6px;background:#111a2e}
+.scr .t{font:700 12.5px/1.2 Montserrat;color:#111}
+.scr .stars{font-size:21px;letter-spacing:2px;margin:8px 0 9px;line-height:1}
+.scr .btn{background:var(--blue);color:#fff;border-radius:9px;font:700 11px Montserrat;padding:8px 4px}
+.scr .bubble{background:#f1f4fa;border-radius:10px;font:600 11px/1.3 Inter;color:#333;padding:7px 6px;margin-bottom:9px}
+
+/* bottom band */
+.band{position:absolute;left:64px;right:64px;top:1072px;height:84px;border-radius:24px;
+  background:linear-gradient(90deg,#1f4fb0,#2f63c8 60%,#3d79e6);display:flex;align-items:center;gap:22px;padding:0 30px;color:#fff;
+  box-shadow:0 14px 30px rgba(31,79,176,.28)}
+.band .chart{display:flex;align-items:flex-end;gap:5px;height:44px}
+.band .chart i{display:block;width:11px;border-radius:3px 3px 1px 1px}
+.band b{font:900 27px Montserrat;letter-spacing:-.3px}
+.band span{margin-left:auto;font:600 19px Inter;opacity:.95;display:flex;align-items:center;gap:10px}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="dots"></div>
+
+<!-- header -->
+<div class="head">
+  <div class="tag"><i><svg width="16" height="16" viewBox="0 0 24 24"><path fill="#fff" d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg></i>NFC + QR-код · відгуки Google</div>
+  <h1><span class="nfc">NFC-наліпка</span><small>для відгуків</small></h1>
+  <div class="sub"><b>Більше відгуків</b><i class="sep"></i><b>Більше довіри</b><i class="sep"></i><b>Більше клієнтів</b></div>
+</div>
+
+<!-- features -->
+<div class="feats">
+  <div class="feat"><div class="ic" style="background:#e8f0fe"><svg width="28" height="28" viewBox="0 0 24 24"><path fill="#2f63c8" d="M13.5 2L4 14h6.5l-1 8L19 10h-6.5z"/></svg></div>
+    <div><h3>Швидко</h3><p>Один дотик — і клієнт уже на сторінці відгуку</p></div></div>
+  <div class="feat"><div class="ic" style="background:#e6f4ea"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#34a853" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 14v0M14 21h3M21 18v3"/></svg></div>
+    <div><h3>Універсально</h3><p>NFC або QR-код — підходить для будь-якого смартфона</p></div></div>
+  <div class="feat"><div class="ic" style="background:#fef7e0"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#e3a008" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.8-7 9-4-1.2-7-4.5-7-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></div>
+    <div><h3>Без додатків</h3><p>Сторінка відгуку відкривається одразу в браузері</p></div></div>
+</div>
+
+<!-- product -->
+<div class="stage">
+  <div class="podium"></div>
+  <div class="sticker-wrap"><div class="sticker"><img src="../../brand/assets/sticker-dflust.png" style="display:block;width:100%;height:100%"></div></div>
+</div>
+
+<div class="note">
+  <svg width="90" height="80" viewBox="0 0 90 80" fill="none" stroke="#1d4aa6" stroke-width="3.5" stroke-linecap="round"><path d="M80 66C60 66 30 54 18 14"/><path d="M8 26l10-14 12 12"/></svg>
+  Маленька наліпка —<br>велика довіра!
+</div>
+
+<!-- steps -->
+<div class="steps-h"><h2>Як це працює?</h2><div class="line"></div><span>3 прості кроки до нових відгуків</span></div>
+<div class="steps">
+  <div class="step"><div class="n">1</div><h4>Клієнт прикладає телефон або сканує QR&#8209;код</h4>
+    <div class="ill">
+      <svg style="position:absolute;left:30px;top:40px" width="120" height="120" viewBox="0 0 120 120">
+        <rect x="6" y="10" width="104" height="104" rx="14" fill="#fff" stroke="#d6dfef" stroke-width="2"/>
+        <path d="M6 24a14 14 0 0 1 14-14h76a14 14 0 0 1 14 14v30c-30 12-70 0-104 10z" fill="#2f63c8"/>
+        <circle cx="30" cy="34" r="13" fill="#fff"/><text x="30" y="40" text-anchor="middle" font-family="Montserrat" font-weight="900" font-size="17" fill="#4285F4">G</text>
+        <rect x="64" y="70" width="34" height="34" rx="3" fill="#fff" stroke="#111" stroke-width="2"/>
+        <path d="M69 75h8v8h-8zM85 75h8v8h-8zM69 91h8v8h-8zM86 90h3v3h-3zM90 95h3v3h-3z" fill="#111"/>
+        <circle cx="34" cy="88" r="15" fill="none" stroke="#111" stroke-width="2.5"/><path d="M30 80c3 5 3 11 0 16M36 77c4 7 4 15 0 22" stroke="#111" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <svg style="position:absolute;left:136px;top:20px" width="60" height="60" viewBox="0 0 60 60" fill="none" stroke="#2f63c8" stroke-width="3.5" stroke-linecap="round"><path d="M14 40a20 20 0 0 1 0-20M24 34a8 8 0 0 1 0-8"/><path d="M6 46a32 32 0 0 1 0-32" opacity=".5"/></svg>
+      <div class="phone" style="left:180px;bottom:-40px;transform:rotate(-12deg)"><div class="scr" style="background:linear-gradient(180deg,#e8f0fe,#fff)"><div class="notch"></div>
+        <svg width="56" height="56" viewBox="0 0 56 56" style="margin-top:12px"><circle cx="28" cy="28" r="26" fill="#2f63c8"/><path d="M22 18c5 6 5 14 0 20M29 14c7 8 7 20 0 28M36 10c9 11 9 25 0 36" stroke="#fff" stroke-width="3.2" fill="none" stroke-linecap="round"/></svg>
+        <div class="t" style="margin-top:8px;color:#2f63c8">NFC зчитується…</div></div></div>
+    </div></div>
+  <div class="step"><div class="n">2</div><h4>Переходить на сторінку відгуку</h4>
+    <div class="ill"><div class="phone" style="left:50%;margin-left:-75px;bottom:-30px"><div class="scr"><div class="notch"></div>
+      <div class="t" style="font-size:13px;margin-top:2px">Оцініть нашу<br>компанію</div>
+      <div class="stars" style="color:#c9d1de">★★★★★</div>
+      <div class="btn">Написати відгук</div></div></div>
+    </div></div>
+  <div class="step"><div class="n">3</div><h4>Залишає відгук у&nbsp;Google</h4>
+    <div class="ill"><div class="phone" style="left:50%;margin-left:-75px;bottom:-30px"><div class="scr"><div class="notch"></div>
+      <div class="stars" style="color:var(--yellow);margin-top:0">★★★★★</div>
+      <div class="bubble">Чудовий сервіс!<br>Рекомендую!</div>
+      <div class="btn" style="background:var(--green)">Опублікувати</div></div></div>
+      <svg style="position:absolute;right:30px;top:30px" width="52" height="52" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#34a853"/><path d="M7 12.5l3.2 3.2L17 9" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg style="position:absolute;left:34px;top:34px" width="44" height="44" viewBox="0 0 24 24"><path fill="#fbbc05" d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg>
+    </div></div>
+</div>
+<div class="arrow" style="left:386px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2f63c8" stroke-width="3" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+<div class="arrow" style="left:780px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2f63c8" stroke-width="3" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+
+<!-- band -->
+<div class="band">
+  <div class="chart"><i style="height:16px;background:#ea4335"></i><i style="height:26px;background:#fbbc05"></i><i style="height:35px;background:#34a853"></i><i style="height:44px;background:#fff"></i></div>
+  <b>Реальні відгуки = більше клієнтів</b>
+  <span>Ваша репутація працює на вас <svg width="26" height="26" viewBox="0 0 24 24"><path fill="#fff" d="M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.7 4.5c2.1 0 3.6 1.2 5.3 3 1.7-1.8 3.2-3 5.3-3 3.7 0 5.8 3.7 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg></span>
+</div>
+</body>
+</html>
