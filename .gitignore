@@ -1,0 +1,6 @@
+node_modules/
+out/
+.env
+__pycache__/
+payroll/data/
+sourcemap.json
