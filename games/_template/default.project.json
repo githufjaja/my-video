@@ -1,0 +1,118 @@
+{
+  "name": "Template",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "Shared": {
+        "$path": "src/shared"
+      }
+    },
+    "ServerScriptService": {
+      "Server": {
+        "$path": "src/server"
+      }
+    },
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "Client": {
+          "$path": "src/client"
+        }
+      }
+    },
+    "Workspace": {
+      "$className": "Workspace",
+      "Baseplate": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Locked": true,
+          "Size": {
+            "Vector3": [
+              512,
+              20,
+              512
+            ]
+          },
+          "CFrame": {
+            "CFrame": {
+              "position": [
+                0,
+                -10,
+                0
+              ],
+              "orientation": [
+                [
+                  1,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  1,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  1
+                ]
+              ]
+            }
+          },
+          "Color": {
+            "Color3": [
+              0.39,
+              0.39,
+              0.39
+            ]
+          },
+          "Material": {
+            "Enum": 256
+          }
+        }
+      },
+      "SpawnLocation": {
+        "$className": "SpawnLocation",
+        "$properties": {
+          "Anchored": true,
+          "Size": {
+            "Vector3": [
+              12,
+              1,
+              12
+            ]
+          },
+          "CFrame": {
+            "CFrame": {
+              "position": [
+                0,
+                0.5,
+                0
+              ],
+              "orientation": [
+                [
+                  1,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  1,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  1
+                ]
+              ]
+            }
+          }
+        }
+      }
+    },
+    "Lighting": {
+      "$className": "Lighting"
+    }
+  }
+}

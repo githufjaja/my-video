@@ -30,6 +30,9 @@ pip install -q -U yt-dlp requests librosa matplotlib pillow numpy
 # Таблиці й PDF для агента payroll
 pip install -q pandas openpyxl pdfplumber
 
+# Інструменти агента roblox-dev (Rojo, luau-lsp + довідник API Roblox)
+"$CLAUDE_PROJECT_DIR/tools/install-roblox-tools.sh" || echo "roblox tools: не вдалося встановити"
+
 # Інструменти агента-дизайнера (HTML → PNG, шрифти, QR); браузер уже є в /opt/pw-browsers
 (cd design && PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install --no-audit --no-fund)
 
