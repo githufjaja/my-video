@@ -1,17 +1,17 @@
 --!strict
--- Drop odds. Used by the server for rolling and by the client to SHOW the exact same odds.
+-- Card drop odds. Used by the server for rolling and by the client to SHOW the exact same odds.
 local Grades = require(script.Parent.Grades)
 local Cards = require(script.Parent.Cards)
 local Zones = require(script.Parent.Zones)
 
 local Drops = {}
 
--- Percentages (sum = 100) per grade for a zone. Luck multiplies every grade except Common.
-function Drops.gradeChances(zone: Zones.Zone, luck: number): { [string]: number }
+-- Percentages (sum = 100) per grade for a world. Luck multiplies every grade except Common.
+function Drops.gradeChances(world: Zones.World, luck: number): { [string]: number }
 	local weights: { [string]: number } = {}
 	local total = 0
 	for _, grade in Grades.list do
-		local w = zone.gradeWeights[grade] or 0
+		local w = world.gradeWeights[grade] or 0
 		if grade ~= "Common" then
 			w *= luck
 		end
@@ -28,8 +28,8 @@ function Drops.gradeChances(zone: Zones.Zone, luck: number): { [string]: number 
 	return out
 end
 
-function Drops.rollGrade(zone: Zones.Zone, luck: number, rng: Random): string
-	local chances = Drops.gradeChances(zone, luck)
+function Drops.rollGrade(world: Zones.World, luck: number, rng: Random): string
+	local chances = Drops.gradeChances(world, luck)
 	local roll = rng:NextNumber() * 100
 	local acc = 0
 	for _, grade in Grades.list do

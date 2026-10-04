@@ -163,8 +163,9 @@ local function clearCard(visual: SlotVisual)
 	visual.shownCard = nil
 end
 
-local function showCard(visual: SlotVisual, cardId: string)
-	if visual.shownCard == cardId and visual.cardGui then
+local function showCard(visual: SlotVisual, cardId: string, level: number)
+	local key = cardId .. ":" .. level
+	if visual.shownCard == key and visual.cardGui then
 		return
 	end
 	clearCard(visual)
@@ -176,9 +177,9 @@ local function showCard(visual: SlotVisual, cardId: string)
 	gui.LightInfluence = 0
 	gui.MaxDistance = 110
 	gui.Parent = visual.part
-	CardView.create(cardId).Parent = gui
+	CardView.create(cardId, { level = level }).Parent = gui
 	visual.cardGui = gui
-	visual.shownCard = cardId
+	visual.shownCard = key
 end
 
 local function setState(visual: SlotVisual, state: string, text: string?, prompt: { action: string, object: string }?)
@@ -227,7 +228,7 @@ function BaseService.refresh(player: Player)
 				local def = Cards.byId[cardId]
 				setState(visual, "occupied", nil, { action = "Take card", object = def.name })
 				visual.part.Color = Grades.info[def.grade].color
-				showCard(visual, cardId)
+				showCard(visual, cardId, Economy.cardLevel(session, cardId))
 			else
 				setState(visual, "empty", "Slot " .. i, nil)
 			end

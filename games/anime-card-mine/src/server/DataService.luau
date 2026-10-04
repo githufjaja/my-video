@@ -15,6 +15,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local Cards = require(ReplicatedStorage.Shared.Cards)
 local Zones = require(ReplicatedStorage.Shared.Zones)
 local Types = require(ReplicatedStorage.Shared.Types)
+local MonetizationConfig = require(ReplicatedStorage.Shared.Monetization)
 
 export type Session = {
 	player: Player,
@@ -24,6 +25,10 @@ export type Session = {
 	lastSave: number,
 	released: boolean, -- true once the final save started
 	saving: boolean,
+	-- runtime only (not saved):
+	wallStage: number, -- stage whose wall HP is tracked below (0 = none)
+	wallHp: number,
+	autoOn: boolean, -- Auto Swing switched on by the player
 }
 
 local DataService = {}
@@ -46,15 +51,24 @@ end
 
 local function defaultProfile(): Types.Profile
 	return {
-		v = 1,
+		v = Config.PROFILE_VERSION,
 		money = 0,
 		damageLevel = 0,
 		slots = Config.START_SLOTS,
-		zonesUnlocked = 1,
+		swordSlots = 0,
+		stage = 0,
+		rebirths = 0,
 		inv = {},
 		placed = {},
+		sword = {},
+		levels = {},
+		potions = {},
+		boosts = {},
 		stats = { rocks = 0, cards = 0 },
 		receipts = {},
+		lastSeen = 0,
+		offlinePending = 0,
+		starterBought = false,
 	}
 end
 
@@ -74,7 +88,15 @@ local function sanitize(raw: any): Types.Profile
 	p.money = num(raw.money, 0, 0, Config.MAX_MONEY)
 	p.damageLevel = math.floor(num(raw.damageLevel, 0, 0, Config.MAX_DAMAGE_LEVEL))
 	p.slots = math.floor(num(raw.slots, Config.START_SLOTS, Config.START_SLOTS, Config.START_SLOTS + #Config.SLOT_COSTS))
-	p.zonesUnlocked = math.floor(num(raw.zonesUnlocked, 1, 1, #Zones.list))
+	p.swordSlots = math.floor(num(raw.swordSlots, 0, 0, #Config.SWORD_SLOT_COSTS))
+	if raw.stage ~= nil then
+		p.stage = math.floor(num(raw.stage, 0, 0, Zones.stageCount))
+	elseif raw.zonesUnlocked ~= nil then
+		-- migration from v1: "worlds unlocked" -> stages cleared (a v1 world = 3 stages)
+		local worlds = math.floor(num(raw.zonesUnlocked, 1, 1, #Zones.worlds))
+		p.stage = math.min(Zones.stageCount, (worlds - 1) * Zones.STAGES_PER_WORLD)
+	end
+	p.rebirths = math.floor(num(raw.rebirths, 0, 0, Config.REBIRTH_MAX))
 	if type(raw.inv) == "table" then
 		for id, count in raw.inv do
 			if type(id) == "string" and Cards.byId[id] and type(count) == "number" and count >= 1 then
@@ -92,6 +114,38 @@ local function sanitize(raw: any): Types.Profile
 			end
 		end
 	end
+	if type(raw.sword) == "table" then
+		for slotKey, id in raw.sword do
+			local slot = tonumber(slotKey)
+			if slot and slot >= 1 and slot <= Config.SWORD_MAX_SLOTS and slot == math.floor(slot) and type(id) == "string" and Cards.byId[id] then
+				p.sword[tostring(slot)] = id
+			end
+		end
+	end
+	if type(raw.levels) == "table" then
+		for id, lv in raw.levels do
+			if type(id) == "string" and Cards.byId[id] and type(lv) == "number" then
+				p.levels[id] = math.floor(math.clamp(lv, 1, Config.CARD_MAX_LEVEL))
+			end
+		end
+	end
+	if type(raw.potions) == "table" then
+		for key, n in raw.potions do
+			if type(key) == "string" and MonetizationConfig.Potions[key] and type(n) == "number" and n >= 1 then
+				p.potions[key] = math.floor(math.min(n, 1e6))
+			end
+		end
+	end
+	if type(raw.boosts) == "table" then
+		for kind, b in raw.boosts do
+			if (kind == "luck" or kind == "cash" or kind == "drop") and type(b) == "table" and type(b.mult) == "number" and type(b.ends) == "number" and b.ends > os.time() then
+				p.boosts[kind] = { mult = math.clamp(b.mult, 1, 100), ends = b.ends }
+			end
+		end
+	end
+	p.lastSeen = math.floor(num(raw.lastSeen, 0, 0, 4e9))
+	p.offlinePending = num(raw.offlinePending, 0, 0, Config.MAX_MONEY)
+	p.starterBought = raw.starterBought == true
 	if type(raw.stats) == "table" then
 		p.stats.rocks = math.floor(num(raw.stats.rocks, 0, 0, 1e12))
 		p.stats.cards = math.floor(num(raw.stats.cards, 0, 0, 1e12))
@@ -213,6 +267,9 @@ local function loadPlayer(player: Player)
 		lastSave = os.clock(),
 		released = false,
 		saving = false,
+		wallStage = 0,
+		wallHp = 0,
+		autoOn = true,
 	}
 	sessions[player] = session
 	for _, cb in loadedCallbacks do
@@ -226,6 +283,7 @@ local function writeSession(session: Session, release: boolean): boolean
 		return true
 	end
 	local profile = session.profile
+	profile.lastSeen = os.time()
 	local conflict = false
 	local activeStore = store
 	if not activeStore then

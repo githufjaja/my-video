@@ -1,5 +1,6 @@
 --!strict
--- "My Base" window: slots with placed cards. Tap a slot to place the selected card or take a card back.
+-- "Base" window: sword slots (card bonuses) and base slots (passive income).
+-- Tap a slot: with a card selected in My Cards it places/swaps it, on an occupied slot with no selection it takes the card back.
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Remotes = require(ReplicatedStorage.Shared.Remotes)
@@ -12,7 +13,7 @@ local State = require(script.Parent.State)
 local BaseWindow = {}
 
 function BaseWindow.create(gui: ScreenGui, openCards: () -> ()): Ui.Window
-	local win = Ui.window(gui, "My Base")
+	local win = Ui.window(gui, "Sword & Base")
 	local body = win.body
 	local lastSignature = ""
 
@@ -23,12 +24,11 @@ function BaseWindow.create(gui: ScreenGui, openCards: () -> ()): Ui.Window
 		TextColor3 = Ui.colors.muted,
 		TextWrapped = true,
 	})
-	Ui.create("UITextSizeConstraint", { MaxTextSize = 18, MinTextSize = 8 }, hint)
+	Ui.create("UITextSizeConstraint", { MaxTextSize = 17, MinTextSize = 8 }, hint)
 
 	Ui.button(body, {
 		text = "Best cards",
 		position = UDim2.new(1, -240, 0, 0),
-		anchor = Vector2.zero,
 		size = UDim2.fromOffset(118, 36),
 		color = Ui.colors.good,
 		onClick = function()
@@ -46,38 +46,35 @@ function BaseWindow.create(gui: ScreenGui, openCards: () -> ()): Ui.Window
 		end,
 	})
 
-	local grid = Ui.scroll(body, { Position = UDim2.fromOffset(0, 42), Size = UDim2.new(1, 0, 1, -42) })
-	Ui.create("UIGridLayout", {
-		CellSize = UDim2.fromOffset(84, 114),
-		CellPadding = UDim2.fromOffset(6, 6),
-		SortOrder = Enum.SortOrder.LayoutOrder,
-	}, grid)
-	Ui.padding(grid, 3)
+	local content = Ui.scroll(body, { Position = UDim2.fromOffset(0, 42), Size = UDim2.new(1, 0, 1, -42) })
+	Ui.create("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, content)
 
-	local function rebuild()
-		for _, c in grid:GetChildren() do
+	local swordTitle = Ui.label(content, { Size = UDim2.new(1, -8, 0, 22), Text = "", TextXAlignment = Enum.TextXAlignment.Left, TextColor3 = Ui.colors.accent, LayoutOrder = 1 })
+	local swordRow: Frame = Ui.create("Frame", { Size = UDim2.new(1, -8, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, LayoutOrder = 2 }, content)
+	Ui.create("UIGridLayout", { CellSize = UDim2.fromOffset(84, 114), CellPadding = UDim2.fromOffset(6, 6), SortOrder = Enum.SortOrder.LayoutOrder }, swordRow)
+	local baseTitle = Ui.label(content, { Size = UDim2.new(1, -8, 0, 22), Text = "", TextXAlignment = Enum.TextXAlignment.Left, TextColor3 = Ui.colors.accent, LayoutOrder = 3 })
+	local baseGrid: Frame = Ui.create("Frame", { Size = UDim2.new(1, -8, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, LayoutOrder = 4 }, content)
+	Ui.create("UIGridLayout", { CellSize = UDim2.fromOffset(84, 114), CellPadding = UDim2.fromOffset(6, 6), SortOrder = Enum.SortOrder.LayoutOrder }, baseGrid)
+
+	local function clear(container: Frame)
+		for _, c in container:GetChildren() do
 			if c:IsA("GuiObject") then
 				c:Destroy()
 			end
 		end
-		local d = State.data
-		if not d then
-			return
-		end
-		local sel = State.selectedCard
-		if sel and d.inv[sel] then
-			hint.Text = "Selected: " .. Cards.byId[sel].name .. ". Tap a slot to place it."
-		else
-			hint.Text = "Tap a card in a slot to take it back. Choose a card in My Cards to place it."
-		end
+	end
+
+	-- fills `container` with `count` slot cells
+	local function fill(container: Frame, count: number, cards: { [string]: string }, putRemote: string, takeRemote: string): number
+		clear(container)
 		local income = 0
-		for slot = 1, d.totalSlots do
-			local cardId = d.placed[tostring(slot)]
-			local cell: Frame = Ui.create("Frame", { BackgroundColor3 = Ui.colors.panel2, BorderSizePixel = 0, LayoutOrder = slot }, grid)
+		for slot = 1, count do
+			local cardId = cards[tostring(slot)]
+			local cell: Frame = Ui.create("Frame", { BackgroundColor3 = Ui.colors.panel2, BorderSizePixel = 0, LayoutOrder = slot }, container)
 			Ui.corner(cell, 9)
 			if cardId then
-				income += Cards.byId[cardId].income
-				CardView.create(cardId).Parent = cell
+				income += Cards.byId[cardId].income * Cards.levelIncomeMult(State.cardLevel(cardId))
+				CardView.create(cardId, { level = State.cardLevel(cardId) }).Parent = cell
 			else
 				Ui.label(cell, { Size = UDim2.fromScale(1, 0.3), Position = UDim2.fromScale(0, 0.35), Text = "Empty #" .. slot, TextColor3 = Ui.colors.muted })
 			end
@@ -86,15 +83,32 @@ function BaseWindow.create(gui: ScreenGui, openCards: () -> ()): Ui.Window
 				local cur = State.selectedCard
 				local data = State.data
 				if cur and data and (data.inv[cur] or 0) > 0 then
-					Remotes.get("PlaceCard"):FireServer(cur, slot)
+					Remotes.get(putRemote):FireServer(cur, slot)
 				elseif cardId then
-					Remotes.get("RemoveCard"):FireServer(slot)
+					Remotes.get(takeRemote):FireServer(slot)
 				else
 					openCards()
 				end
 			end)
 		end
-		hint.Text ..= string.format("  Slots: %d. Base income: +%s/s", d.totalSlots, Format.number(income))
+		return income
+	end
+
+	local function rebuild()
+		local d = State.data
+		if not d then
+			return
+		end
+		local sel = State.selectedCard
+		if sel and (d.inv[sel] or 0) > 0 then
+			hint.Text = "Selected: " .. Cards.byId[sel].name .. ". Tap a slot to place it."
+		else
+			hint.Text = "Tap a card to take it back. Select a card in My Cards to place it here."
+		end
+		fill(swordRow, d.swordSlots, d.sword, "EquipCard", "UnequipCard")
+		swordTitle.Text = string.format("SWORD slots: +%d%% damage, +%d%% money", math.floor(d.swordDmgPct * 100 + 0.5), math.floor(d.swordMoneyPct * 100 + 0.5))
+		local income = fill(baseGrid, d.totalSlots, d.placed, "PlaceCard", "RemoveCard")
+		baseTitle.Text = string.format("BASE slots: +%s money per second", Format.number(income * d.moneyMult))
 	end
 
 	local function refresh()
@@ -102,21 +116,19 @@ function BaseWindow.create(gui: ScreenGui, openCards: () -> ()): Ui.Window
 			return
 		end
 		local d = State.data
-		local sig = tostring(State.selectedCard) .. "|" .. (if d then tostring(d.totalSlots) else "")
+		local parts: { string } = { tostring(State.selectedCard) }
 		if d then
-			local keys: { string } = {}
-			for k, v in d.placed do
-				table.insert(keys, k .. "=" .. v)
+			table.insert(parts, d.totalSlots .. "/" .. d.swordSlots .. "/" .. d.moneyMult)
+			for _, t in ({ d.placed, d.sword, d.inv, d.levels } :: { { [string]: any } }) do
+				local keys: { string } = {}
+				for k, v in t do
+					table.insert(keys, k .. "=" .. tostring(v))
+				end
+				table.sort(keys)
+				table.insert(parts, table.concat(keys, ","))
 			end
-			table.sort(keys)
-			sig ..= "|" .. table.concat(keys, ",")
-			local invKeys: { string } = {}
-			for k, v in d.inv do
-				table.insert(invKeys, k .. v)
-			end
-			table.sort(invKeys)
-			sig ..= "|" .. table.concat(invKeys, ",")
 		end
+		local sig = table.concat(parts, "|")
 		if sig == lastSignature then
 			return
 		end

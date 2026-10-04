@@ -5,40 +5,69 @@ local Players = game:GetService("Players")
 
 local Remotes = require(ReplicatedStorage.Shared.Remotes)
 local Types = require(ReplicatedStorage.Shared.Types)
+local MonetizationConfig = require(ReplicatedStorage.Shared.Monetization)
 local DataService = require(script.Parent.DataService)
 local Economy = require(script.Parent.Economy)
 local MonetizationService = require(script.Parent.MonetizationService)
-local MonetizationConfig = require(ReplicatedStorage.Shared.Monetization)
+local RateLimiter = require(script.Parent.RateLimiter)
 
 local Replication = {}
 
 local pending: { [Player]: boolean } = {}
 
+-- Set by DropService: seconds until the next card drop for this player.
+Replication.dropIn = nil :: ((Player) -> number)?
+
+local function copy(t: { [string]: any }): { [string]: any }
+	local out: { [string]: any } = {}
+	for k, v in t do
+		out[k] = v
+	end
+	return out
+end
+
 local function build(session: DataService.Session): Types.Snapshot
 	local p = session.profile
-	local inv: { [string]: number } = {}
-	for id, n in p.inv do
-		inv[id] = n
+	local player = session.player
+	local swordDmg, swordMoney = Economy.swordBonus(session)
+	local boosts: { [string]: { mult: number, remaining: number } } = {}
+	for kind, b in p.boosts do
+		local remaining = MonetizationService.boostRemaining(session, kind)
+		if remaining > 0 then
+			boosts[kind] = { mult = b.mult, remaining = remaining }
+		end
 	end
-	local placed: { [string]: string } = {}
-	for k, id in p.placed do
-		placed[k] = id
-	end
+	local dropFn = Replication.dropIn
 	return {
 		money = p.money,
 		income = Economy.income(session),
 		damage = Economy.damage(session),
 		damageLevel = p.damageLevel,
 		boughtSlots = p.slots,
-		totalSlots = Economy.totalSlots(session),
-		zonesUnlocked = p.zonesUnlocked,
-		inv = inv,
-		placed = placed,
-		luck = Economy.luck(session.player),
-		moneyMult = Economy.moneyMult(session.player),
+		totalSlots = Economy.baseSlots(session),
+		swordBought = p.swordSlots,
+		swordSlots = Economy.swordSlots(session),
+		stage = p.stage,
+		rebirths = p.rebirths,
+		inv = copy(p.inv) :: any,
+		placed = copy(p.placed) :: any,
+		sword = copy(p.sword) :: any,
+		levels = copy(p.levels) :: any,
+		luck = Economy.luck(session),
+		moneyMult = Economy.moneyMult(session),
+		swordDmgPct = swordDmg,
+		swordMoneyPct = swordMoney,
+		boosts = boosts,
+		potions = copy(p.potions) :: any,
+		passes = MonetizationService.owned(player),
+		dropIn = if dropFn then dropFn(player) else 0,
+		dropInterval = Economy.dropInterval(session),
 		offline = session.offline,
-		monetization = MonetizationConfig.ENABLED,
-		passes = MonetizationService.owned(session.player),
+		offlinePending = p.offlinePending,
+		starterBought = p.starterBought,
+		autoOwned = MonetizationService.hasAutoSwing(player),
+		autoOn = session.autoOn,
+		studioTest = MonetizationConfig.ENABLED and MonetizationService.isStudioTest(),
 	}
 end
 
@@ -71,11 +100,16 @@ function Replication.init()
 		pending[player] = nil
 	end)
 	Remotes.get("RequestState").OnServerEvent:Connect(function(player)
-		Replication.sendNow(player)
+		if RateLimiter.allow(player, "state", 0.5) then
+			Replication.sendNow(player)
+		end
 	end)
-	MonetizationService.onChanged(function(player)
+	MonetizationService.hooks.changed = function(player)
 		Replication.queue(player)
-	end)
+	end
+	MonetizationService.hooks.notify = function(player, text, level)
+		Replication.notify(player, "text", text, level)
+	end
 end
 
 return Replication

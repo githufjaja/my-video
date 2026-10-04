@@ -26,10 +26,10 @@
         "$properties": {
           "Anchored": true,
           "Locked": true,
-          "Size": { "Vector3": [700, 20, 1100] },
+          "Size": { "Vector3": [700, 20, 1450] },
           "CFrame": {
             "CFrame": {
-              "position": [0, -10, -200],
+              "position": [0, -10, -350],
               "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
             }
           },

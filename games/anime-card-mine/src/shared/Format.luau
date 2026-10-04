@@ -33,6 +33,15 @@ function Format.money(n: number): string
 	return "$" .. Format.number(n)
 end
 
+-- 83 -> "1m 23s", 3725 -> "1h 2m"
+function Format.time(seconds: number): string
+	seconds = math.max(0, math.floor(seconds))
+	if seconds >= 3600 then
+		return string.format("%dh %dm", seconds // 3600, (seconds % 3600) // 60)
+	end
+	return string.format("%dm %02ds", seconds // 60, seconds % 60)
+end
+
 function Format.percent(p: number): string
 	if p <= 0 then
 		return "0%"

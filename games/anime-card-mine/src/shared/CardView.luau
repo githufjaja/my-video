@@ -24,7 +24,7 @@ local function label(parent: Instance, name: string, text: string, pos: UDim2, s
 end
 
 -- opts.count: shows a "x3" badge; opts.hideIncome: no income line
-function CardView.create(cardId: string, opts: { count: number?, hideIncome: boolean? }?): Frame
+function CardView.create(cardId: string, opts: { count: number?, hideIncome: boolean?, level: number? }?): Frame
 	local def = Cards.byId[cardId]
 	local grade = Grades.info[def.grade]
 
@@ -48,7 +48,8 @@ function CardView.create(cardId: string, opts: { count: number?, hideIncome: boo
 	stroke.Parent = root
 
 	-- grade strip
-	local strip = label(root, "Grade", string.upper(def.grade), UDim2.fromScale(0.08, 0.03), UDim2.fromScale(0.84, 0.11), grade.color)
+	local levelText = if opts and opts.level and opts.level > 1 then "  Lv" .. tostring(opts.level) else ""
+	local strip = label(root, "Grade", string.upper(def.grade) .. levelText, UDim2.fromScale(0.08, 0.03), UDim2.fromScale(0.84, 0.11), grade.color)
 
 	-- placeholder icon (circle with initials)
 	local icon = Instance.new("Frame")
@@ -75,7 +76,7 @@ function CardView.create(cardId: string, opts: { count: number?, hideIncome: boo
 	nameLabel.TextWrapped = true
 
 	if not (opts and opts.hideIncome) then
-		label(root, "Income", "+" .. Format.number(def.income) .. "/s", UDim2.fromScale(0.1, 0.83), UDim2.fromScale(0.8, 0.12), Color3.fromRGB(120, 255, 150))
+		label(root, "Income", "+" .. Format.number(def.income * Cards.levelIncomeMult(if opts and opts.level then opts.level else 1)) .. "/s", UDim2.fromScale(0.1, 0.83), UDim2.fromScale(0.8, 0.12), Color3.fromRGB(120, 255, 150))
 	end
 
 	if opts and opts.count and opts.count > 1 then

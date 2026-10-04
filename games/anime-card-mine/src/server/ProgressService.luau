@@ -1,5 +1,5 @@
 --!strict
--- Upgrades and travel: damage upgrade, base slots, unlocking worlds, teleports, and the gate guard.
+-- Upgrades and travel: sword level, base slots, sword slots, rebirth, teleports, and the wall guard.
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Remotes = require(ReplicatedStorage.Shared.Remotes)
@@ -43,7 +43,7 @@ function ProgressService.buyDamage(player: Player, amount: any)
 		return
 	end
 	if count < 1 then
-		Replication.notify(player, "text", level >= Config.MAX_DAMAGE_LEVEL and "Damage is at the maximum." or "Not enough money.", "bad")
+		Replication.notify(player, "text", level >= Config.MAX_DAMAGE_LEVEL and "Sword level is at the maximum." or "Not enough money.", "bad")
 		return
 	end
 	if not Economy.spend(session, cost) then
@@ -61,7 +61,7 @@ function ProgressService.buySlot(player: Player)
 	end
 	local cost = Formulas.slotCost(session.profile.slots)
 	if not cost then
-		Replication.notify(player, "text", "You already bought every slot.", "bad")
+		Replication.notify(player, "text", "You already bought every base slot.", "bad")
 		return
 	end
 	if not Economy.spend(session, cost) then
@@ -73,31 +73,56 @@ function ProgressService.buySlot(player: Player)
 	Replication.queue(player)
 end
 
-function ProgressService.buyZone(player: Player, zoneId: any)
-	if type(zoneId) ~= "number" or zoneId ~= math.floor(zoneId) then
-		return
-	end
+function ProgressService.buySwordSlot(player: Player)
 	local session = DataService.get(player)
-	local zone = Zones.get(zoneId)
-	if not session or not zone then
+	if not session then
 		return
 	end
-	if zoneId <= session.profile.zonesUnlocked then
-		Replication.notify(player, "text", "Already unlocked.", "bad")
+	local cost = Formulas.swordSlotCost(session.profile.swordSlots)
+	if not cost then
+		Replication.notify(player, "text", "No more sword slots to buy.", "bad")
 		return
 	end
-	if zoneId ~= session.profile.zonesUnlocked + 1 then
-		Replication.notify(player, "text", "Unlock the previous world first.", "bad")
+	if not Economy.spend(session, cost) then
+		Replication.notify(player, "text", "Not enough money (" .. Format.money(cost) .. ").", "bad")
 		return
 	end
-	if not Economy.spend(session, zone.gateCost) then
-		Replication.notify(player, "text", "Not enough money (" .. Format.money(zone.gateCost) .. ").", "bad")
-		return
-	end
-	session.profile.zonesUnlocked = zoneId
-	Replication.notify(player, "text", zone.name .. " unlocked!", "good")
+	session.profile.swordSlots += 1
 	Replication.queue(player)
-	task.spawn(DataService.saveNow, session) -- important progress: save right away
+end
+
+-- Rebirth: resets money, sword level and stage progress; cards, levels, slots and purchases stay.
+function ProgressService.rebirth(player: Player)
+	local session = DataService.get(player)
+	if not session then
+		return
+	end
+	local profile = session.profile
+	if profile.rebirths >= Config.REBIRTH_MAX then
+		Replication.notify(player, "text", "Maximum rebirths reached.", "bad")
+		return
+	end
+	local need = Formulas.rebirthStageReq(profile.rebirths)
+	if profile.stage < need then
+		Replication.notify(player, "text", string.format("Clear %d stages first (you cleared %d).", need, profile.stage), "bad")
+		return
+	end
+	profile.rebirths += 1
+	profile.money = 0
+	profile.damageLevel = 0
+	profile.stage = 0
+	session.wallStage = 0
+	session.wallHp = 0
+	player:SetAttribute("WallStage", 0)
+	player:SetAttribute("WallHp", 0)
+	DataService.touch(session)
+	local hrp = rootOf(player)
+	if hrp then
+		hrp.CFrame = CFrame.new(World.hubSpawn)
+	end
+	Replication.notify(player, "text", string.format("REBIRTH %d! Damage x%.2f, money x%.2f", profile.rebirths, Formulas.rebirthDamageMult(profile.rebirths), Formulas.rebirthMoneyMult(profile.rebirths)), "good")
+	Replication.queue(player)
+	task.spawn(DataService.saveNow, session)
 end
 
 function ProgressService.teleport(player: Player, where: any)
@@ -112,16 +137,18 @@ function ProgressService.teleport(player: Player, where: any)
 		end
 	elseif where == "hub" then
 		hrp.CFrame = CFrame.new(World.hubSpawn)
-	elseif type(where) == "number" and Zones.get(where) and where == math.floor(where) then
-		if where > session.profile.zonesUnlocked then
-			Replication.notify(player, "text", "This world is locked.", "bad")
+	elseif type(where) == "number" and where == math.floor(where) and Zones.getWorld(where) then
+		local world = Zones.worlds[where]
+		if not Zones.isWorldUnlocked(world.id, session.profile.stage) then
+			Replication.notify(player, "text", "Complete World " .. (world.id - 1) .. " first.", "bad")
 			return
 		end
-		hrp.CFrame = CFrame.new(Zones.spawnPosition(where))
+		local target = math.clamp(session.profile.stage + 1, world.firstStage, world.lastStage)
+		hrp.CFrame = CFrame.new(Zones.spawnPosition(target))
 	end
 end
 
--- Server-side gate guard: nobody stays in a world they have not unlocked (walls are only client-side per player).
+-- Server-side guard: nobody stays beyond a wall they have not broken (walls are only switched off per player on the client).
 local function guardLoop()
 	while true do
 		task.wait(1)
@@ -129,10 +156,10 @@ local function guardLoop()
 			local hrp = rootOf(player)
 			if hrp and not session.released then
 				local pos = hrp.Position
-				local zoneId = Zones.zoneAtZ(pos.Z)
-				if zoneId and zoneId > session.profile.zonesUnlocked and math.abs(pos.X) < 140 then
-					hrp.CFrame = CFrame.new(Zones.spawnPosition(session.profile.zonesUnlocked))
-					Replication.notify(player, "text", "That world is locked. Unlock the gate first.", "bad")
+				local stageId = Zones.stageAtZ(pos.Z)
+				if stageId and stageId > session.profile.stage + 1 and math.abs(pos.X) < 140 then
+					hrp.CFrame = CFrame.new(Zones.spawnPosition(session.profile.stage + 1))
+					Replication.notify(player, "text", "Break the wall first!", "bad")
 				end
 			end
 		end
@@ -142,13 +169,6 @@ end
 function ProgressService.init()
 	BaseService.buyHandler = function(player)
 		ProgressService.buySlot(player)
-	end
-	for zoneId, prompt in World.gatePrompts do
-		prompt.Triggered:Connect(function(player: Player)
-			if RateLimiter.allow(player, "zone", 0.5) then
-				ProgressService.buyZone(player, zoneId)
-			end
-		end)
 	end
 	Remotes.get("BuyDamage").OnServerEvent:Connect(function(player, amount: any)
 		if RateLimiter.allow(player, "buy", 0.1) then
@@ -160,9 +180,14 @@ function ProgressService.init()
 			ProgressService.buySlot(player)
 		end
 	end)
-	Remotes.get("BuyZone").OnServerEvent:Connect(function(player, zoneId: any)
-		if RateLimiter.allow(player, "zone", 0.5) then
-			ProgressService.buyZone(player, zoneId)
+	Remotes.get("BuySwordSlot").OnServerEvent:Connect(function(player)
+		if RateLimiter.allow(player, "buy", 0.3) then
+			ProgressService.buySwordSlot(player)
+		end
+	end)
+	Remotes.get("Rebirth").OnServerEvent:Connect(function(player)
+		if RateLimiter.allow(player, "rebirth", 2) then
+			ProgressService.rebirth(player)
 		end
 	end)
 	Remotes.get("TeleportTo").OnServerEvent:Connect(function(player, where: any)

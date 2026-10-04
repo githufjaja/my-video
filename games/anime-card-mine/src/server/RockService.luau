@@ -8,17 +8,17 @@ local Debris = game:GetService("Debris")
 local Remotes = require(ReplicatedStorage.Shared.Remotes)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Zones = require(ReplicatedStorage.Shared.Zones)
-local Drops = require(ReplicatedStorage.Shared.Drops)
 local Format = require(ReplicatedStorage.Shared.Format)
 local DataService = require(script.Parent.DataService)
 local Economy = require(script.Parent.Economy)
 local Replication = require(script.Parent.Replication)
-local CardService = require(script.Parent.CardService)
 local MonetizationService = require(script.Parent.MonetizationService)
 local RateLimiter = require(script.Parent.RateLimiter)
+local World = require(script.Parent.World)
+local Sword = require(script.Parent.Sword)
 
 type Rock = {
-	zone: Zones.Zone,
+	stage: Zones.Stage,
 	def: Zones.RockType,
 	spawnPos: Vector3,
 	yaw: number,
@@ -138,7 +138,7 @@ local function spawnRock(rock: Rock)
 	rock.model = model
 	rock.body = body
 	model:SetAttribute("IsRock", true)
-	model:SetAttribute("Zone", rock.zone.id)
+	model:SetAttribute("Stage", rock.stage.id)
 	model:SetAttribute("Alive", true)
 	buildBillboard(rock, body)
 	updateBar(rock)
@@ -205,7 +205,7 @@ local function breakRock(rock: Rock, killer: Player)
 	end
 	local position = if body then body.Position + Vector3.new(0, rock.def.size * 0.6, 0) else rock.spawnPos
 
-	-- split rewards by damage share
+	-- split the money by damage share (rocks are shared between players)
 	local total = 0
 	for _, dmg in contrib do
 		total += dmg
@@ -215,28 +215,74 @@ local function breakRock(rock: Rock, killer: Player)
 			local session = if player.Parent then DataService.get(player) else nil
 			if session then
 				local share = dmg / total
-				local money = math.max(1, math.floor(rock.def.reward * Economy.moneyMult(player) * share + 0.5))
-				Economy.addMoney(session, money)
-				session.profile.stats.rocks += 1
-				Remotes.get("DamageFx"):FireClient(player, "money", position, money)
-
 				if share >= Config.DROP_SHARE_MIN or player == killer then
-					if rng:NextNumber() < rock.def.cardChance then
-						local grade = Drops.rollGrade(rock.zone, Economy.luck(player), rng)
-						local cardId = Drops.pickCard(grade, rng)
-						if cardId then
-							CardService.give(session, cardId, 1)
-							Replication.notify(player, "card", cardId, nil)
-						end
-					end
+					local money = math.max(1, math.floor(rock.def.reward * Economy.hitMoneyMult(session) * share + 0.5))
+					Economy.addMoney(session, money)
+					session.profile.stats.rocks += 1
+					Remotes.get("DamageFx"):FireClient(player, "money", position, money)
+					Replication.queue(player)
 				end
-				Replication.queue(player)
 			end
 		end
 	end
 	respawnLater(rock)
 end
 
+local function hitRock(player: Player, session: DataService.Session, rock: Rock)
+	local body = rock.body
+	if not body then
+		return
+	end
+	local damage = Economy.damage(session)
+	local dealt = math.min(damage, rock.hp)
+	rock.hp -= dealt
+	rock.contrib[player] = (rock.contrib[player] or 0) + dealt
+	updateBar(rock)
+	local jitter = Vector3.new(rng:NextNumber(-1, 1), 0, rng:NextNumber(-1, 1))
+	Remotes.get("DamageFx"):FireClient(player, "dmg", body.Position + Vector3.new(0, rock.def.size * 0.5, 0) + jitter, damage)
+	if rock.hp <= 0 then
+		breakRock(rock, player)
+	end
+end
+
+-- Personal wall: every player has their own HP on the wall of the stage they are working on.
+local function hitWall(player: Player, session: DataService.Session, wallStage: number, wall: Part, hrp: BasePart)
+	local stage = Zones.stages[wallStage]
+	if session.wallStage ~= wallStage then
+		session.wallStage = wallStage
+		session.wallHp = stage.wallHp
+	end
+	local damage = Economy.damage(session)
+	session.wallHp -= damage
+	local left = math.max(0, session.wallHp)
+	player:SetAttribute("WallStage", wallStage)
+	player:SetAttribute("WallHp", left)
+	local x = math.clamp(hrp.Position.X, -stage.xHalf, stage.xHalf)
+	Remotes.get("DamageFx"):FireClient(player, "dmg", Vector3.new(x, 7, wall.Position.Z + 4), damage)
+
+	if session.wallHp <= 0 then
+		session.wallStage = 0
+		session.wallHp = 0
+		session.profile.stage = wallStage
+		local reward = math.floor(stage.wallReward * Economy.hitMoneyMult(session))
+		Economy.addMoney(session, reward)
+		player:SetAttribute("WallStage", 0)
+		player:SetAttribute("WallHp", 0)
+		Remotes.get("DamageFx"):FireClient(player, "money", Vector3.new(x, 8, wall.Position.Z + 4), reward)
+		local world = Zones.worlds[stage.world]
+		if wallStage == Zones.stageCount then
+			Replication.notify(player, "text", "FINAL WALL broken! You can Rebirth now.", "good")
+		elseif wallStage == world.lastStage then
+			Replication.notify(player, "text", "World complete! " .. Zones.worlds[world.id + 1].name .. " unlocked!", "good")
+		else
+			Replication.notify(player, "text", string.format("Stage %d cleared! The way is open.", wallStage), "good")
+		end
+		Replication.queue(player)
+		task.spawn(DataService.saveNow, session) -- important progress: save right away
+	end
+end
+
+-- Nearest obstacle in reach: a shared rock or the player's own next wall.
 -- target: what the client clicked (may be nil or garbage). The server re-checks everything.
 function RockService.hit(player: Player, target: any, skipLimit: boolean?)
 	if not skipLimit and not RateLimiter.bucket(player, "hit", Config.HIT_BUCKET_CAPACITY, Config.HIT_REFILL_PER_SEC) then
@@ -248,70 +294,77 @@ function RockService.hit(player: Player, target: any, skipLimit: boolean?)
 		return
 	end
 
-	local unlocked = session.profile.zonesUnlocked
-	local chosen: Rock? = nil
-	if typeof(target) == "Instance" and rockOf[target] then
-		local candidate = rockOf[target]
-		if candidate.zone.id <= unlocked and inRange(hrp, candidate) then
-			chosen = candidate
+	local accessible = session.profile.stage + 1 -- stage regions the player may stand in
+
+	-- wall of the stage the player is working on
+	local wallStage = session.profile.stage + 1
+	local wall: Part? = World.walls[wallStage]
+	local wallD: number? = nil
+	if wall then
+		local dz = hrp.Position.Z - wall.Position.Z - wall.Size.Z / 2
+		if dz >= -2 and dz <= Config.WALL_RANGE and math.abs(hrp.Position.X) <= wall.Size.X / 2 then
+			wallD = dz
 		end
 	end
-	if not chosen then
-		local best = math.huge
+
+	-- rock
+	local chosen: Rock? = nil
+	local chosenD = math.huge
+	if typeof(target) == "Instance" and rockOf[target] then
+		local candidate = rockOf[target]
+		local d = inRange(hrp, candidate)
+		if candidate.stage.id <= accessible and d then
+			chosen, chosenD = candidate, d
+		end
+	end
+	local clickedWall = wall ~= nil and target == wall and wallD ~= nil
+	if not chosen and not clickedWall then
 		for _, rock in rocks do
-			if rock.zone.id <= unlocked then
+			if rock.stage.id <= accessible then
 				local d = inRange(hrp, rock)
-				if d and d < best then
-					best = d
-					chosen = rock
+				if d and d < chosenD then
+					chosen, chosenD = rock, d
 				end
 			end
 		end
 	end
-	local rock = chosen
-	if not rock or not rock.body then
-		return
-	end
 
-	local damage = Economy.damage(session)
-	local dealt = math.min(damage, rock.hp)
-	rock.hp -= dealt
-	rock.contrib[player] = (rock.contrib[player] or 0) + dealt
-	updateBar(rock)
-	local jitter = Vector3.new(rng:NextNumber(-1, 1), 0, rng:NextNumber(-1, 1))
-	Remotes.get("DamageFx"):FireClient(player, "dmg", rock.body.Position + Vector3.new(0, rock.def.size * 0.5, 0) + jitter, damage)
-	if rock.hp <= 0 then
-		breakRock(rock, player)
+	if wall and wallD and (clickedWall or not chosen or wallD <= chosenD) then
+		Sword.swing(player)
+		hitWall(player, session, wallStage, wall, hrp)
+	elseif chosen and chosen.body then
+		Sword.swing(player)
+		hitRock(player, session, chosen)
 	end
 end
 
 local function buildSpots()
-	for _, zone in Zones.list do
-		local zrng = Random.new(zone.id * 7919)
+	for _, stage in Zones.stages do
+		local zrng = Random.new(stage.id * 7919)
 		local totalWeight = 0
-		for _, def in zone.rocks do
+		for _, def in stage.rocks do
 			totalWeight += def.weight
 		end
 		local placed: { Vector3 } = {}
-		local entrance = Vector3.new(0, 0, zone.zMax - 16)
-		for _ = 1, zone.rockCount do
+		local entrance = Vector3.new(0, 0, stage.zMax - 12)
+		for _ = 1, stage.rockCount do
 			-- weighted type
 			local roll = zrng:NextNumber() * totalWeight
-			local def = zone.rocks[#zone.rocks]
-			for _, candidate in zone.rocks do
+			local def = stage.rocks[#stage.rocks]
+			for _, candidate in stage.rocks do
 				roll -= candidate.weight
 				if roll <= 0 then
 					def = candidate
 					break
 				end
 			end
-			-- position with spacing
+			-- position with spacing (keep clear of the entrance and of the wall)
 			local pos = Vector3.zero
 			for _ = 1, 200 do
-				pos = Vector3.new(zrng:NextNumber(-zone.xHalf + 20, zone.xHalf - 20), 0, zrng:NextNumber(zone.zMin + 25, zone.zMax - 35))
-				local ok = (pos - entrance).Magnitude > 25
+				pos = Vector3.new(zrng:NextNumber(-stage.xHalf + 20, stage.xHalf - 20), 0, zrng:NextNumber(stage.zMin + 22, stage.zMax - 22))
+				local ok = (pos - entrance).Magnitude > 22
 				for _, other in placed do
-					if (pos - other).Magnitude < 24 then
+					if (pos - other).Magnitude < 22 then
 						ok = false
 						break
 					end
@@ -322,7 +375,7 @@ local function buildSpots()
 			end
 			table.insert(placed, pos)
 			table.insert(rocks, {
-				zone = zone,
+				stage = stage,
 				def = def,
 				spawnPos = pos + Vector3.new(0, 0.4, 0),
 				yaw = zrng:NextNumber() * math.pi * 2,
@@ -352,15 +405,23 @@ function RockService.init()
 		RockService.hit(player, target)
 	end)
 
-	-- Auto Click pass (stage 2): inactive while monetization is off
+	-- Auto Swing pass: hits the nearest obstacle by itself (player can switch it off)
 	task.spawn(function()
 		while true do
-			task.wait(Config.AUTOCLICK_INTERVAL)
+			task.wait(Config.AUTOSWING_INTERVAL)
 			for player, session in DataService.all() do
-				if not session.released and MonetizationService.hasAutoClick(player) then
+				if not session.released and session.autoOn and MonetizationService.hasAutoSwing(player) then
 					RockService.hit(player, nil, true)
 				end
 			end
+		end
+	end)
+
+	Remotes.get("ToggleAuto").OnServerEvent:Connect(function(player)
+		local session = DataService.get(player)
+		if session and RateLimiter.allow(player, "auto", 0.3) and MonetizationService.hasAutoSwing(player) then
+			session.autoOn = not session.autoOn
+			Replication.queue(player)
 		end
 	end)
 

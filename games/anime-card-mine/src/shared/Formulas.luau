@@ -1,11 +1,13 @@
 --!strict
 -- Shared formulas (the server uses them for real, the client for price display).
 local Config = require(script.Parent.Config)
+local Zones = require(script.Parent.Zones)
 
 local Formulas = {}
 
-function Formulas.damageForLevel(level: number): number
-	return Config.BASE_DAMAGE + level * Config.DAMAGE_PER_LEVEL
+-- base damage of a sword level: grows faster every 25 levels
+function Formulas.baseDamage(level: number): number
+	return Config.BASE_DAMAGE + level * (1 + math.floor(level / 25))
 end
 
 -- price of the upgrade that moves from `level` to `level + 1`
@@ -40,8 +42,22 @@ function Formulas.slotCost(bought: number): number?
 	return Config.SLOT_COSTS[bought - Config.START_SLOTS + 1]
 end
 
-function Formulas.maxBoughtSlots(): number
-	return Config.START_SLOTS + #Config.SLOT_COSTS
+-- price of the next sword slot (bought = extra slots already bought), or nil
+function Formulas.swordSlotCost(bought: number): number?
+	return Config.SWORD_SLOT_COSTS[bought + 1]
+end
+
+function Formulas.rebirthDamageMult(rebirths: number): number
+	return 1 + Config.REBIRTH_DAMAGE_PER * rebirths
+end
+
+function Formulas.rebirthMoneyMult(rebirths: number): number
+	return 1 + Config.REBIRTH_MONEY_PER * rebirths
+end
+
+-- stages that must be cleared before the next rebirth
+function Formulas.rebirthStageReq(rebirths: number): number
+	return math.min(Zones.stageCount, Config.REBIRTH_BASE_STAGE + Config.REBIRTH_STAGE_STEP * rebirths)
 end
 
 return Formulas

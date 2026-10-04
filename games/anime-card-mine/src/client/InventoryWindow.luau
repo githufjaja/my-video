@@ -1,8 +1,9 @@
 --!strict
--- "Cards" window: your cards, filter by grade, place on base, sell.
+-- "My Cards": filter by grade; for the selected card: place on base, equip in sword, level up, sell.
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Remotes = require(ReplicatedStorage.Shared.Remotes)
+local Config = require(ReplicatedStorage.Shared.Config)
 local Cards = require(ReplicatedStorage.Shared.Cards)
 local Grades = require(ReplicatedStorage.Shared.Grades)
 local CardView = require(ReplicatedStorage.Shared.CardView)
@@ -35,7 +36,7 @@ function InventoryWindow.create(gui: ScreenGui): Ui.Window
 	-- card grid (left)
 	local grid = Ui.scroll(body, {
 		Position = UDim2.fromOffset(0, 46),
-		Size = UDim2.new(0.58, -4, 1, -46),
+		Size = UDim2.new(0.55, -4, 1, -46),
 	})
 	Ui.create("UIGridLayout", {
 		CellSize = UDim2.fromOffset(84, 114),
@@ -44,47 +45,59 @@ function InventoryWindow.create(gui: ScreenGui): Ui.Window
 	}, grid)
 	Ui.padding(grid, 3)
 
-	-- details (right)
-	local detail: Frame = Ui.create("Frame", {
-		Position = UDim2.new(0.58, 4, 0, 46),
-		Size = UDim2.new(0.42, -4, 1, -46),
+	-- details (right, scrollable so it works on small screens)
+	local detailBack: Frame = Ui.create("Frame", {
+		Position = UDim2.new(0.55, 4, 0, 46),
+		Size = UDim2.new(0.45, -4, 1, -46),
 		BackgroundColor3 = Ui.colors.panel2,
 		BorderSizePixel = 0,
 	}, body)
-	Ui.corner(detail, 10)
-	local cardHolder: Frame = Ui.create("Frame", { Position = UDim2.fromOffset(8, 8), Size = UDim2.new(0.5, 0, 0.5, -8), BackgroundTransparency = 1 }, detail)
+	Ui.corner(detailBack, 10)
+	local detail = Ui.scroll(detailBack, { Size = UDim2.fromScale(1, 1) })
+	Ui.create("UIListLayout", { Padding = UDim.new(0, 5), SortOrder = Enum.SortOrder.LayoutOrder, HorizontalAlignment = Enum.HorizontalAlignment.Center }, detail)
+	Ui.padding(detail, 6)
+
+	local cardHolder: Frame = Ui.create("Frame", { Size = UDim2.new(1, 0, 0, 132), BackgroundTransparency = 1, LayoutOrder = 1 }, detail)
 	local info = Ui.label(detail, {
-		Position = UDim2.new(0.5, 12, 0, 8),
-		Size = UDim2.new(0.5, -18, 0.5, -8),
-		TextScaled = true,
+		Size = UDim2.new(1, 0, 0, 84),
 		TextWrapped = true,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextYAlignment = Enum.TextYAlignment.Top,
 		TextColor3 = Ui.colors.muted,
 		Text = "Tap a card",
+		LayoutOrder = 2,
 	})
-	Ui.create("UITextSizeConstraint", { MaxTextSize = 20, MinTextSize = 8 }, info)
+	Ui.create("UITextSizeConstraint", { MaxTextSize = 17, MinTextSize = 8 }, info)
 
-	local placeBtn = Ui.button(detail, {
-		text = "Place on base",
-		position = UDim2.new(0, 8, 0.5, 2),
-		size = UDim2.new(1, -16, 0, 36),
-		color = Ui.colors.good,
-	})
-	local sell1 = Ui.button(detail, {
-		text = "Sell 1",
-		position = UDim2.new(0, 8, 0.5, 42),
-		size = UDim2.new(0.5, -12, 0, 36),
-		color = Ui.colors.accent,
-		textColor = Color3.fromRGB(40, 30, 0),
-	})
-	local sellAll = Ui.button(detail, {
-		text = "Sell all",
-		position = UDim2.new(0.5, 4, 0.5, 42),
-		size = UDim2.new(0.5, -12, 0, 36),
-		color = Ui.colors.accent,
-		textColor = Color3.fromRGB(40, 30, 0),
-	})
+	local function detailButton(text: string, order: number, color: Color3, textColor: Color3?, onClick: () -> ()): TextButton
+		return Ui.button(detail, { text = text, size = UDim2.new(1, 0, 0, 36), layoutOrder = order, color = color, textColor = textColor, onClick = onClick })
+	end
+	local placeBtn = detailButton("Place on base", 3, Ui.colors.good, nil, function()
+		if State.selectedCard then
+			Remotes.get("PlaceCard"):FireServer(State.selectedCard)
+		end
+	end)
+	local equipBtn = detailButton("Equip in sword", 4, Ui.colors.blue, nil, function()
+		if State.selectedCard then
+			Remotes.get("EquipCard"):FireServer(State.selectedCard)
+		end
+	end)
+	local levelBtn = detailButton("Level up", 5, Color3.fromRGB(150, 80, 230), nil, function()
+		if State.selectedCard then
+			Remotes.get("LevelUp"):FireServer(State.selectedCard)
+		end
+	end)
+	local sellDark = Color3.fromRGB(40, 30, 0)
+	local sell1 = detailButton("Sell 1", 6, Ui.colors.accent, sellDark, function()
+		if State.selectedCard then
+			Remotes.get("Sell"):FireServer(State.selectedCard, 1)
+		end
+	end)
+	local sellAll = detailButton("Sell all", 7, Ui.colors.accent, sellDark, function()
+		if State.selectedCard then
+			Remotes.get("Sell"):FireServer(State.selectedCard, "all")
+		end
+	end)
 
 	local function sortedCards(): { string }
 		local d = State.data
@@ -125,22 +138,43 @@ function InventoryWindow.create(gui: ScreenGui): Ui.Window
 				return
 			end
 			info.Text = "Tap a card to see it here."
-			Ui.setEnabledLook(placeBtn, false, Ui.colors.good)
-			Ui.setEnabledLook(sell1, false, Ui.colors.accent)
-			Ui.setEnabledLook(sellAll, false, Ui.colors.accent)
+			for _, b in { placeBtn, equipBtn, levelBtn, sell1, sellAll } do
+				Ui.setEnabledLook(b, false, Ui.colors.disabled)
+			end
 			sell1.Text = "Sell 1"
 			sellAll.Text = "Sell all"
+			levelBtn.Text = "Level up"
 			return
 		end
 		local def = Cards.byId[id]
-		CardView.create(id, { hideIncome = true }).Parent = cardHolder
-		info.Text = string.format("%s\n%s\n+%s/s\nOwned: %d\n%s", def.name, def.grade, Format.number(def.income), have, def.tagline)
+		local level = State.cardLevel(id)
+		CardView.create(id, { level = level }).Parent = cardHolder
+		local dmgPct, moneyPct = Cards.swordBonus(id, level)
+		info.Text = string.format(
+			"%s  (%s, Lv %d)\nBase: +%s/s\nSword: +%d%% damage, +%d%% money\nOwned: %d",
+			def.name,
+			def.grade,
+			level,
+			Format.number(def.income * Cards.levelIncomeMult(level)),
+			math.floor(dmgPct * 100 + 0.5),
+			math.floor(moneyPct * 100 + 0.5),
+			have
+		)
 		info.TextColor3 = Grades.info[def.grade].color
 		Ui.setEnabledLook(placeBtn, true, Ui.colors.good)
+		Ui.setEnabledLook(equipBtn, true, Ui.colors.blue)
 		Ui.setEnabledLook(sell1, true, Ui.colors.accent)
 		Ui.setEnabledLook(sellAll, true, Ui.colors.accent)
 		sell1.Text = "Sell 1 (" .. Format.money(Cards.sellValue(id)) .. ")"
 		sellAll.Text = "Sell all (" .. Format.money(Cards.sellValue(id) * have) .. ")"
+		if level >= Config.CARD_MAX_LEVEL then
+			levelBtn.Text = "Max level"
+			Ui.setEnabledLook(levelBtn, false, Color3.fromRGB(150, 80, 230))
+		else
+			local need = Cards.copiesToLevel(level)
+			levelBtn.Text = string.format("Level up (%d/%d copies)", have, need)
+			Ui.setEnabledLook(levelBtn, have >= need, Color3.fromRGB(150, 80, 230))
+		end
 	end
 
 	local function rebuildGrid()
@@ -155,7 +189,7 @@ function InventoryWindow.create(gui: ScreenGui): Ui.Window
 		end
 		for i, id in sortedCards() do
 			local cell: Frame = Ui.create("Frame", { BackgroundTransparency = 1, LayoutOrder = i }, grid)
-			CardView.create(id, { count = d.inv[id] }).Parent = cell
+			CardView.create(id, { count = d.inv[id], level = State.cardLevel(id) }).Parent = cell
 			local selected = State.selectedCard == id
 			local outline: Frame = Ui.create("Frame", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, ZIndex = 4, Visible = selected }, cell)
 			Ui.corner(outline, 9)
@@ -164,10 +198,6 @@ function InventoryWindow.create(gui: ScreenGui): Ui.Window
 			hit.Activated:Connect(function()
 				State.select(id)
 			end)
-		end
-		if #grid:GetChildren() <= 2 then
-			-- empty state is shown through the info text
-			info.Text = "No cards here yet.\nMine rocks to find some!"
 		end
 	end
 
@@ -194,7 +224,7 @@ function InventoryWindow.create(gui: ScreenGui): Ui.Window
 		if d then
 			local ids: { string } = {}
 			for id, n in d.inv do
-				table.insert(ids, id .. "=" .. n)
+				table.insert(ids, id .. "=" .. n .. ":" .. (d.levels[id] or 1))
 			end
 			table.sort(ids)
 			table.insert(parts, table.concat(ids, ","))
@@ -213,7 +243,7 @@ function InventoryWindow.create(gui: ScreenGui): Ui.Window
 		table.insert(names, g)
 	end
 	for i, name in names do
-		local btn = Ui.button(tabs, {
+		tabButtons[name] = Ui.button(tabs, {
 			text = name,
 			size = UDim2.fromOffset(if name == "Legendary" then 100 else 80, 36),
 			layoutOrder = i,
@@ -224,11 +254,10 @@ function InventoryWindow.create(gui: ScreenGui): Ui.Window
 				refresh(true)
 			end,
 		})
-		tabButtons[name] = btn
 	end
 	sellGradeBtn = Ui.button(tabs, {
 		text = "Sell all",
-		size = UDim2.fromOffset(120, 36),
+		size = UDim2.fromOffset(130, 36),
 		layoutOrder = 100,
 		color = Ui.colors.bad,
 		onClick = function()
@@ -253,22 +282,6 @@ function InventoryWindow.create(gui: ScreenGui): Ui.Window
 		end,
 	})
 	refreshTabs()
-
-	placeBtn.Activated:Connect(function()
-		if State.selectedCard then
-			Remotes.get("PlaceCard"):FireServer(State.selectedCard)
-		end
-	end)
-	sell1.Activated:Connect(function()
-		if State.selectedCard then
-			Remotes.get("Sell"):FireServer(State.selectedCard, 1)
-		end
-	end)
-	sellAll.Activated:Connect(function()
-		if State.selectedCard then
-			Remotes.get("Sell"):FireServer(State.selectedCard, "all")
-		end
-	end)
 
 	State.onChanged(function()
 		refresh(false)

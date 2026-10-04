@@ -1,44 +1,49 @@
 --!strict
--- Per-player look of the world: gates open for worlds you have unlocked (local only; the server also guards).
+-- Per-player look of the world (local only; the server also guards):
+--  * a wall you have broken becomes see-through and walkable;
+--  * the VIP door is open only for VIP players.
+local Players = game:GetService("Players")
+
 local State = require(script.Parent.State)
 
 local WorldClient = {}
 
 function WorldClient.start()
+	local player = Players.LocalPlayer
 	local world = workspace:WaitForChild("World")
-	local zonesFolder = world:WaitForChild("Zones")
+	local stages = world:WaitForChild("Stages")
 
-	local lastUnlocked = -1
-	local function apply()
-		local unlocked = if State.data then State.data.zonesUnlocked else 1
-		if unlocked == lastUnlocked then
-			return
-		end
-		lastUnlocked = unlocked
-		for _, inst in zonesFolder:GetDescendants() do
-			local zoneId = inst:GetAttribute("GateZone")
-			if type(zoneId) == "number" then
-				local locked = zoneId > unlocked
-				if inst:IsA("ProximityPrompt") then
-					inst.Enabled = locked
-				elseif inst:IsA("BasePart") then
-					if inst.Name:sub(1, 5) == "Gate_" then
-						inst.CanCollide = locked
-						inst.CanQuery = false
-						inst.Transparency = if locked then 0.35 else 1
-					else
-						local sign = inst:FindFirstChild("Sign")
-						if sign and sign:IsA("BillboardGui") then
-							sign.Enabled = locked
-						end
-					end
+	local function applyWalls()
+		local broken = if State.data then State.data.stage else 0
+		for _, inst in stages:GetChildren() do
+			local wallStage = inst:GetAttribute("WallStage")
+			if type(wallStage) == "number" and inst:IsA("BasePart") then
+				local closed = wallStage > broken
+				inst.CanCollide = closed
+				inst.CanQuery = closed
+				inst.Transparency = if closed then 0 else 1
+				local sign = inst:FindFirstChild("Sign")
+				if sign and sign:IsA("BillboardGui") then
+					sign.Enabled = closed
 				end
 			end
 		end
 	end
 
-	State.onChanged(apply)
-	apply()
+	local function applyVip()
+		local vip = player:GetAttribute("IsVip") == true
+		for _, inst in world:GetChildren() do
+			if inst:IsA("BasePart") and inst:GetAttribute("VipDoor") then
+				inst.CanCollide = not vip
+				inst.Transparency = if vip then 0.85 else 0.3
+			end
+		end
+	end
+
+	State.onChanged(applyWalls)
+	player:GetAttributeChangedSignal("IsVip"):Connect(applyVip)
+	applyWalls()
+	applyVip()
 end
 
 return WorldClient

@@ -33,6 +33,25 @@ local function rockFromPart(part: Instance): Model?
 	return nil
 end
 
+local function currentStage(): number
+	local d = State.data
+	return if d then d.stage else 0
+end
+
+-- the wall of the stage the player is working on (nil when none / not near)
+local function nextWall(hrp: BasePart): BasePart?
+	local world = workspace:FindFirstChild("World")
+	local stages = world and world:FindFirstChild("Stages")
+	local wall = stages and stages:FindFirstChild("Wall_" .. (currentStage() + 1))
+	if wall and wall:IsA("BasePart") then
+		local dz = hrp.Position.Z - wall.Position.Z - wall.Size.Z / 2
+		if dz >= -2 and dz <= Config.WALL_RANGE then
+			return wall
+		end
+	end
+	return nil
+end
+
 local function distanceTo(hrp: BasePart, rock: Model): number
 	local body = rock.PrimaryPart
 	if not body then
@@ -41,41 +60,50 @@ local function distanceTo(hrp: BasePart, rock: Model): number
 	return (hrp.Position - body.Position).Magnitude - body.Size.X * 0.6
 end
 
-local function unlockedZone(): number
-	local d = State.data
-	return if d then d.zonesUnlocked else 1
-end
-
-local function nearestRock(hrp: BasePart): Model?
-	local folder = workspace:FindFirstChild("Rocks")
-	if not folder then
-		return nil
-	end
-	local best: Model? = nil
+-- nearest obstacle in reach: a rock or the wall
+local function nearestTarget(hrp: BasePart): Instance?
+	local best: Instance? = nil
 	local bestD = Config.HIT_RANGE
-	for _, m in folder:GetChildren() do
-		if m:IsA("Model") and m:GetAttribute("Alive") and (m:GetAttribute("Zone") :: number) <= unlockedZone() then
-			local d = distanceTo(hrp, m)
-			if d <= bestD then
-				best, bestD = m, d
+	local folder = workspace:FindFirstChild("Rocks")
+	if folder then
+		for _, m in folder:GetChildren() do
+			if m:IsA("Model") and m:GetAttribute("Alive") and (m:GetAttribute("Stage") :: number) <= currentStage() + 1 then
+				local d = distanceTo(hrp, m)
+				if d <= bestD then
+					best, bestD = m, d
+				end
 			end
+		end
+	end
+	local wall = nextWall(hrp)
+	if wall then
+		local dz = hrp.Position.Z - wall.Position.Z - wall.Size.Z / 2
+		if dz <= bestD then
+			best = wall
 		end
 	end
 	return best
 end
 
-local function rockUnderRay(ray: Ray, char: Model): Model?
+local function targetUnderRay(ray: Ray, char: Model, hrp: BasePart): Instance?
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
 	params.FilterDescendantsInstances = { char }
 	local result = workspace:Raycast(ray.Origin, ray.Direction * 300, params)
 	if result then
-		return rockFromPart(result.Instance)
+		local rock = rockFromPart(result.Instance)
+		if rock and distanceTo(hrp, rock) <= Config.HIT_RANGE and (rock:GetAttribute("Stage") :: number) <= currentStage() + 1 then
+			return rock
+		end
+		local wall = nextWall(hrp)
+		if wall and result.Instance == wall then
+			return wall
+		end
 	end
 	return nil
 end
 
--- ray: ray under the pointer (nil = just hit the nearest rock)
+-- ray: ray under the pointer (nil = just hit the nearest obstacle)
 local function tryHit(ray: Ray?)
 	local now = os.clock()
 	if now - lastHit < Config.CLIENT_HIT_INTERVAL then
@@ -85,20 +113,17 @@ local function tryHit(ray: Ray?)
 	if not char or not hrp then
 		return
 	end
-	local target: Model? = nil
+	local target: Instance? = nil
 	if ray then
-		local under = rockUnderRay(ray, char)
-		if under and distanceTo(hrp, under) <= Config.HIT_RANGE and (under:GetAttribute("Zone") :: number) <= unlockedZone() then
-			target = under
-		end
+		target = targetUnderRay(ray, char, hrp)
 	end
 	if not target then
-		target = nearestRock(hrp)
+		target = nearestTarget(hrp)
 	end
 	if not target then
 		if now - lastHint > 2.5 then
 			lastHint = now
-			Effects.toast("No rock in reach. Walk closer to a rock!", nil)
+			Effects.toast("Nothing in reach. Walk closer to a rock or the wall!", nil)
 		end
 		return
 	end

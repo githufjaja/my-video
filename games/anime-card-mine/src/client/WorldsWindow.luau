@@ -1,10 +1,10 @@
 --!strict
--- "Worlds": unlock gates for money and teleport.
+-- "Worlds": progress through the stages of every world; teleport to worlds you have unlocked.
+-- A world opens after the last wall of the previous world is broken.
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Remotes = require(ReplicatedStorage.Shared.Remotes)
 local Zones = require(ReplicatedStorage.Shared.Zones)
-local Format = require(ReplicatedStorage.Shared.Format)
 local Ui = require(script.Parent.Ui)
 local State = require(script.Parent.State)
 
@@ -40,38 +40,28 @@ function WorldsWindow.create(gui: ScreenGui): Ui.Window
 
 	local buttons: { [number]: TextButton } = {}
 	local statuses: { [number]: TextLabel } = {}
-	for _, zone in Zones.list do
-		local f: Frame = Ui.create("Frame", { Size = UDim2.new(1, -8, 0, 84), BackgroundColor3 = Ui.colors.panel2, BorderSizePixel = 0, LayoutOrder = zone.id }, list)
+	for _, world in Zones.worlds do
+		local f: Frame = Ui.create("Frame", { Size = UDim2.new(1, -8, 0, 84), BackgroundColor3 = Ui.colors.panel2, BorderSizePixel = 0, LayoutOrder = world.id }, list)
 		Ui.corner(f, 12)
-		Ui.stroke(f, zone.accent, 2)
-		Ui.label(f, { Position = UDim2.fromOffset(12, 6), Size = UDim2.new(0.6, -12, 0, 28), Text = zone.name, TextXAlignment = Enum.TextXAlignment.Left, TextColor3 = zone.accent })
-		Ui.label(f, { Position = UDim2.fromOffset(12, 36), Size = UDim2.new(0.6, -12, 0, 20), Text = zone.tagline, TextXAlignment = Enum.TextXAlignment.Left, TextColor3 = Ui.colors.muted })
-		local hpMin, hpMax = math.huge, 0
-		for _, r in zone.rocks do
-			hpMin, hpMax = math.min(hpMin, r.hp), math.max(hpMax, r.hp)
-		end
-		statuses[zone.id] = Ui.label(f, {
+		Ui.stroke(f, world.accent, 2)
+		Ui.label(f, { Position = UDim2.fromOffset(12, 6), Size = UDim2.new(0.62, -12, 0, 28), Text = world.name, TextXAlignment = Enum.TextXAlignment.Left, TextColor3 = world.accent })
+		Ui.label(f, { Position = UDim2.fromOffset(12, 36), Size = UDim2.new(0.62, -12, 0, 20), Text = world.tagline, TextXAlignment = Enum.TextXAlignment.Left, TextColor3 = Ui.colors.muted })
+		statuses[world.id] = Ui.label(f, {
 			Position = UDim2.fromOffset(12, 58),
-			Size = UDim2.new(0.6, -12, 0, 20),
-			Text = "Rock HP: " .. Format.number(hpMin) .. " - " .. Format.number(hpMax),
+			Size = UDim2.new(0.62, -12, 0, 20),
+			Text = "",
 			TextXAlignment = Enum.TextXAlignment.Left,
-			TextColor3 = Ui.colors.text,
 		})
-		buttons[zone.id] = Ui.button(f, {
+		buttons[world.id] = Ui.button(f, {
 			text = "",
-			position = UDim2.new(0.6, 0, 0, 14),
-			size = UDim2.new(0.4, -12, 0, 56),
+			position = UDim2.new(0.62, 0, 0, 14),
+			size = UDim2.new(0.38, -12, 0, 56),
 			color = Ui.colors.good,
 			onClick = function()
 				local d = State.data
-				if not d then
-					return
-				end
-				if zone.id <= d.zonesUnlocked then
+				if d and Zones.isWorldUnlocked(world.id, d.stage) then
 					win.close()
-					Remotes.get("TeleportTo"):FireServer(zone.id)
-				else
-					Remotes.get("BuyZone"):FireServer(zone.id)
+					Remotes.get("TeleportTo"):FireServer(world.id)
 				end
 			end,
 		})
@@ -82,15 +72,18 @@ function WorldsWindow.create(gui: ScreenGui): Ui.Window
 		if not d or not win.isOpen() then
 			return
 		end
-		for _, zone in Zones.list do
-			local btn = buttons[zone.id]
-			if zone.id <= d.zonesUnlocked then
+		for _, world in Zones.worlds do
+			local unlocked = Zones.isWorldUnlocked(world.id, d.stage)
+			local cleared = math.clamp(d.stage - (world.firstStage - 1), 0, Zones.STAGES_PER_WORLD)
+			local btn = buttons[world.id]
+			if unlocked then
+				statuses[world.id].Text = string.format("Stages cleared: %d / %d", cleared, Zones.STAGES_PER_WORLD)
+				statuses[world.id].TextColor3 = if cleared >= Zones.STAGES_PER_WORLD then Ui.colors.good else Ui.colors.text
 				btn.Text = "Teleport"
 				Ui.setEnabledLook(btn, true, Ui.colors.blue)
-			elseif zone.id == d.zonesUnlocked + 1 then
-				btn.Text = "Unlock " .. Format.money(zone.gateCost)
-				Ui.setEnabledLook(btn, d.money >= zone.gateCost, Ui.colors.good)
 			else
+				statuses[world.id].Text = "Complete World " .. (world.id - 1) .. " first"
+				statuses[world.id].TextColor3 = Ui.colors.bad
 				btn.Text = "Locked"
 				Ui.setEnabledLook(btn, false, Ui.colors.good)
 			end

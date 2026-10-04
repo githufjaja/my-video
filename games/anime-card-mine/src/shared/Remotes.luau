@@ -9,21 +9,33 @@ local Remotes = {}
 
 Remotes.names = {
 	-- client -> server
-	"Hit", -- (rock: Instance?)
+	"Hit", -- (target: Instance?)
 	"Sell", -- (cardId: string, amount: number | "all")
 	"SellGrade", -- (grade: string)
-	"PlaceCard", -- (cardId: string, slot: number?)
-	"RemoveCard", -- (slot: number)
+	"PlaceCard", -- (cardId: string, slot: number?)  base
+	"RemoveCard", -- (slot: number)  base
+	"EquipCard", -- (cardId: string, slot: number?)  sword
+	"UnequipCard", -- (slot: number)  sword
+	"LevelUp", -- (cardId: string)
 	"AutoBest", -- ()
 	"BuyDamage", -- (amount: number | "max")
 	"BuySlot", -- ()
-	"BuyZone", -- (zoneId: number)
-	"TeleportTo", -- ("base" | "hub" | zoneId: number)
+	"BuySwordSlot", -- ()
+	"TeleportTo", -- ("base" | "hub" | worldId: number)
+	"Rebirth", -- ()
+	"PickupDrop", -- (dropId: number)
+	"ClaimOffline", -- (double: boolean)
+	"BuyPass", -- (key: string)
+	"BuyProduct", -- (key: string)
+	"UsePotion", -- (key: string)
+	"ToggleAuto", -- ()
 	"RequestState", -- ()
 	-- server -> client
 	"State", -- (snapshot)
 	"DamageFx", -- (kind: "dmg" | "money", position: Vector3, amount: number)
 	"Notify", -- (kind: "text" | "card", a: string, b: string?)
+	"DropSpawn", -- (dropId: number, cardId: string, position: Vector3, lifetime: number)
+	"DropGone", -- (dropId: number)
 }
 
 local function folder(): Folder

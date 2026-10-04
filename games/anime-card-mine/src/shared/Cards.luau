@@ -2,6 +2,7 @@
 -- All characters are ORIGINAL (invented names, no real anime IP).
 -- income = money per second while placed on a base slot.
 local Config = require(script.Parent.Config)
+local Grades = require(script.Parent.Grades)
 
 export type CardDef = {
 	id: string,
@@ -61,6 +62,31 @@ end
 function Cards.sellValue(id: string): number
 	local def = Cards.byId[id]
 	return def and def.income * Config.SELL_PER_INCOME or 0
+end
+
+-- Level helpers (a card's level applies to every copy of that character).
+function Cards.levelIncomeMult(level: number): number
+	return 1 + 0.25 * (level - 1)
+end
+
+function Cards.levelSwordMult(level: number): number
+	return 1 + 0.2 * (level - 1)
+end
+
+-- copies (from the inventory) needed to go from `level` to `level + 1`
+function Cards.copiesToLevel(level: number): number
+	return level
+end
+
+-- (damage fraction, money fraction) of a card equipped in a sword slot
+function Cards.swordBonus(id: string, level: number): (number, number)
+	local def = Cards.byId[id]
+	if not def then
+		return 0, 0
+	end
+	local g = Grades.info[def.grade]
+	local m = Cards.levelSwordMult(level)
+	return g.swordDmg * m, g.swordMoney * m
 end
 
 function Cards.initials(def: CardDef): string
