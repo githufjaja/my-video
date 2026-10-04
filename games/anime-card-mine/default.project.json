@@ -1,0 +1,64 @@
+{
+  "name": "AnimeCardMine",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "Shared": {
+        "$path": "src/shared"
+      }
+    },
+    "ServerScriptService": {
+      "Server": {
+        "$path": "src/server"
+      }
+    },
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "Client": {
+          "$path": "src/client"
+        }
+      }
+    },
+    "Workspace": {
+      "$className": "Workspace",
+      "Baseplate": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Locked": true,
+          "Size": { "Vector3": [700, 20, 1100] },
+          "CFrame": {
+            "CFrame": {
+              "position": [0, -10, -200],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          },
+          "Color": { "Color3": [0.33, 0.55, 0.3] },
+          "Material": { "Enum": 256 }
+        }
+      },
+      "SpawnLocation": {
+        "$className": "SpawnLocation",
+        "$properties": {
+          "Anchored": true,
+          "Size": { "Vector3": [14, 1, 14] },
+          "Duration": 0,
+          "CFrame": {
+            "CFrame": {
+              "position": [0, 0.7, 0],
+              "orientation": [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            }
+          },
+          "Color": { "Color3": [0.95, 0.8, 0.35] }
+        }
+      }
+    },
+    "Lighting": {
+      "$className": "Lighting",
+      "$properties": {
+        "ClockTime": 14,
+        "Brightness": 2.5
+      }
+    }
+  }
+}
