@@ -11,7 +11,10 @@ effort: high
 1. Прочитай `brand/brand.md` — цвета, шрифты, файлы бренда, запреты.
 2. Посмотри образец стиля: `design/templates/nfc-nalipka-card.html`
    (результат — карточка 1200×1200 для маркетплейсов).
-3. Если в `design/node_modules` пусто — выполни `cd design && npm install`.
+3. Для идей по стилю, сетке, типографике и контрасту можно спросить навык `ui-ux-pro-max`
+   (`python3 .claude/skills/ui-ux-pro-max/scripts/search.py "<запрос>" --domain style`);
+   бренд-бук всё равно главнее.
+4. Если в `design/node_modules` пусто — выполни `cd design && npm install`.
 
 ## Главный способ: HTML → PNG
 Любой текст на картинке набирай шрифтом в HTML, а не генерируй нейросетью —
