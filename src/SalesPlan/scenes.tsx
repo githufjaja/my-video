@@ -5,29 +5,35 @@ import { Big, C, Counter, glow, Mono, Panel, Scene, Sparkle, Tag, Typed, useRise
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const center: React.CSSProperties = { justifyContent: "center", alignItems: "center", flexDirection: "column" };
 
-// 1. Хук: план 608 000
+// 1. Хук: планы на октябрь
 export const S1Hook: React.FC<{ dur: number }> = ({ dur }) => {
-  const a = useSlam(28);
-  const b = useSlam(70, 1.6);
+  const a = useSlam(20);
+  const b = useRise(60);
   return (
     <Scene dur={dur}>
-      <AbsoluteFill style={center}>
-        <Typed text="ДНІПРО-М · УЖГОРОД · 06.10–31.10.2026" start={4} cps={45} size={30} color={C.dim} style={{ marginBottom: 50, letterSpacing: 3 }} />
+      <AbsoluteFill style={{ ...center, justifyContent: "flex-start", paddingTop: 170 }}>
+        <Typed text="ДНІПРО-М · УЖГОРОД · ЖОВТЕНЬ 2026" start={4} cps={45} size={30} color={C.dim} style={{ marginBottom: 40, letterSpacing: 3 }} />
         <div style={{ ...a, display: "flex", alignItems: "baseline", gap: 40 }}>
-          <Big size={230}>
-            <Counter to={608000} start={28} dur={40} />
+          <Big size={210}>
+            <Counter to={1900000} start={20} dur={40} />
           </Big>
-          <Big size={110} color={C.violet}>
+          <Big size={100} color={C.violet}>
             грн
           </Big>
         </div>
-        <div style={{ ...b, marginTop: 40 }}>
-          <Big size={90} color={C.violet}>
-            за 26 днів
-          </Big>
+        <div style={{ ...b, marginTop: 24 }}>
+          <Mono size={34} color={C.violetHi} style={{ letterSpacing: 4 }}>
+            ПЛАН НА МІСЯЦЬ
+          </Mono>
         </div>
       </AbsoluteFill>
-      <Sparkle x={1640} y={290} delay={75} size={46} />
+      <Panel x={260} y={660} w={640} h={210} start={110}>
+        <Box big="608 000" small="перша декада · 01–10.10" />
+      </Panel>
+      <Panel x={1020} y={660} w={640} h={210} start={215} accent>
+        <Box big="500 000" small="енергозабезпечення · окремий план" />
+      </Panel>
+      <Sparkle x={1660} y={250} delay={60} size={46} />
     </Scene>
   );
 };
@@ -65,25 +71,25 @@ export const S3Pace: React.FC<{ dur: number }> = ({ dur }) => {
       <Tag>Потрібний темп</Tag>
       <div style={{ position: "absolute", left: 0, right: 0, top: 210, textAlign: "center", ...head }}>
         <Big size={180}>
-          ≈ <Counter to={19600} start={4} dur={36} />
+          ≈ <Counter to={61300} start={4} dur={36} />
         </Big>
         <Mono size={34} color={C.violetHi} style={{ marginTop: 20, letterSpacing: 4 }}>
-          ГРИВЕНЬ НА ДЕНЬ
+          ГРИВЕНЬ НА ДЕНЬ · 1 900 000 / 31
         </Mono>
       </div>
-      <Panel x={260} y={640} w={380} h={170} start={40}>
-        <Box big="~25" small="чеків на день" />
+      <Panel x={260} y={640} w={380} h={170} start={120}>
+        <Box big="план" small="на місяць / декаду" />
       </Panel>
-      <Wire x1={640} y1={725} x2={770} y2={725} start={56} />
-      <Panel x={770} y={640} w={380} h={170} start={66}>
-        <Box big="~800" small="середній чек, грн" />
+      <Wire x1={640} y1={725} x2={770} y2={725} start={136} />
+      <Panel x={770} y={640} w={380} h={170} start={146}>
+        <Box big="− факт" small="порахувати сьогодні" />
       </Panel>
-      <Wire x1={1150} y1={725} x2={1280} y2={725} start={82} />
-      <Panel x={1280} y={640} w={380} h={170} start={92} accent>
-        <Box big="≈20 000" small="= план на день" />
+      <Wire x1={1150} y1={725} x2={1280} y2={725} start={162} />
+      <Panel x={1280} y={640} w={380} h={170} start={172} accent>
+        <Box big="÷ дні" small="що лишились" />
       </Panel>
       <div style={{ position: "absolute", left: 0, right: 0, top: 880, textAlign: "center" }}>
-        <Typed text="формула: (608 000 − факт на 05.10) / 26 днів → цифру на стіну" start={110} cps={55} size={26} color={C.dim} />
+        <Typed text="= щоденний темп → цифру на стіну" start={260} cps={40} size={30} color={C.white} />
       </div>
     </Scene>
   );
@@ -128,7 +134,7 @@ export const S5Levers: React.FC<{ dur: number }> = ({ dur }) => {
   const frame = useCurrentFrame();
   const x0 = 820;
   const scale = 6.4; // пикселей на 1 тис.
-  const total = useSlam(150);
+  const total = useSlam(260);
   return (
     <Scene dur={dur} glowX={60}>
       <Tag>Приріст до плану · оцінка, тис. грн</Tag>
@@ -178,7 +184,7 @@ export const S5Levers: React.FC<{ dur: number }> = ({ dur }) => {
           реально: <span style={{ color: C.violet, textShadow: glow(0.9, 24) }}>+150–250 тис.</span>
         </Big>
         <Mono size={24} style={{ marginTop: 14 }}>
-          сума 175–370 тис., але важелі 1 і 2 частково перетинаються
+          сума 175–370 тис., важелі 1 і 2 перетинаються · оцінка при ~25 чеках/день, перерахуємо за фактом
         </Mono>
       </div>
     </Scene>
@@ -220,7 +226,7 @@ export const S6Core: React.FC<{ dur: number }> = ({ dur }) => {
   const frame = useCurrentFrame();
   const w = 390;
   const h = 170;
-  const est = useRise(170);
+  const est = useRise(420);
   return (
     <Scene dur={dur}>
       <LeverHead n="01" title="Ядро акцій" sub="на видне місце · пропонувати першим" />
@@ -243,14 +249,14 @@ export const S6Core: React.FC<{ dur: number }> = ({ dur }) => {
           </Panel>
         );
       })}
-      <div style={{ position: "absolute", left: 120, top: 750, display: "flex", alignItems: "center", gap: 24, opacity: interpolate(frame, [90, 104], [0, 1], clamp) }}>
+      <div style={{ position: "absolute", left: 120, top: 750, display: "flex", alignItems: "center", gap: 24, opacity: interpolate(frame, [300, 314], [0, 1], clamp) }}>
         <div style={{ width: 20, height: 20, borderRadius: 10, background: C.hot, boxShadow: glow(1, 14), opacity: Math.floor(frame / 10) % 2 ? 1 : 0.35 }} />
         <Mono size={30} color={C.white}>
           ~15.10 акції оновлюються → продаємо ядро до зміни
         </Mono>
       </div>
       <div style={{ position: "absolute", left: 120, top: 830 }}>
-        <Typed text="Клієнту чесно: «акція діє до оновлення акцій, нові ціни можуть бути іншими»." start={120} cps={60} size={28} color={C.dim} />
+        <Typed text="Клієнту чесно: «акція діє до оновлення акцій, нові ціни можуть бути іншими»." start={340} cps={60} size={28} color={C.dim} />
       </div>
       <div style={{ position: "absolute", left: 120, top: 920, ...est }}>
         <Mono size={30} color={C.violetHi}>
@@ -271,8 +277,8 @@ const pairs = [
 
 export const S7Cross: React.FC<{ dur: number }> = ({ dur }) => {
   const frame = useCurrentFrame();
-  const per = 58;
-  const base = 30;
+  const per = 75;
+  const base = 70;
   const idx = Math.min(pairs.length - 1, Math.max(0, Math.floor((frame - base) / per)));
   const local = frame - base - idx * per;
   const p = pairs[idx];
@@ -312,7 +318,7 @@ export const S7Cross: React.FC<{ dur: number }> = ({ dur }) => {
       </div>
       <div style={{ position: "absolute", left: 160, top: 780, ...calc }}>
         <Mono size={30} color={C.white}>
-          650 чеків × 30% з допродажем × ~350 грн
+          ~650 чеків × 30% з допродажем × ~350 грн (допущення)
         </Mono>
         <div style={{ fontFamily: C.display, fontWeight: 900, fontSize: 64, color: C.violet, textShadow: glow(0.9, 24), marginTop: 10 }}>≈ +50–80 тис. грн</div>
       </div>
@@ -333,7 +339,7 @@ const season = [
 
 export const S8Season: React.FC<{ dur: number }> = ({ dur }) => {
   const frame = useCurrentFrame();
-  const est = useRise(110);
+  const est = useRise(240);
   return (
     <Scene dur={dur} glowX={30}>
       <LeverHead n="03" title="Сезон" sub="листя · дрова · підготовка до зими" />
@@ -349,7 +355,7 @@ export const S8Season: React.FC<{ dur: number }> = ({ dur }) => {
           </div>
         );
       })}
-      <Panel x={1340} y={300} w={440} h={350} start={80} accent>
+      <Panel x={1340} y={300} w={440} h={350} start={185} accent>
         <div style={{ padding: 34 }}>
           <Mono size={24} color={C.hot}>
             ! РИЗИК
@@ -435,12 +441,12 @@ const funnel = [
 
 export const S10Calls: React.FC<{ dur: number }> = ({ dur }) => {
   const frame = useCurrentFrame();
-  const est = useRise(96);
+  const est = useRise(240);
   return (
     <Scene dur={dur} glowX={35}>
       <LeverHead n="05" title="Обдзвін бази" sub="лише покупці за 60–90 днів · 8–10 дзвінків на день · без розсилок" />
       {funnel.map((f, i) => {
-        const d = 24 + i * 22;
+        const d = 150 + i * 25;
         const t = interpolate(frame - d, [0, 18], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
         const w = 760 - i * 160;
         return (
@@ -492,7 +498,7 @@ const energy = [
 export const S11Energy: React.FC<{ dur: number }> = ({ dur }) => {
   const frame = useCurrentFrame();
   const head = useSlam(4);
-  const foot = useRise(140);
+  const foot = useRise(200);
   const steps = [
     { v: "15", l: "контактів" },
     { v: "4", l: "КП" },
@@ -506,7 +512,7 @@ export const S11Energy: React.FC<{ dur: number }> = ({ dur }) => {
           Енергія <span style={{ color: C.violet, textShadow: glow(0.9, 30) }}>/</span> резерв
         </Big>
         <Mono size={30} color={C.white} style={{ marginTop: 18 }}>
-          станції · генератори · інвертори + АКБ на полиці ≈ <span style={{ color: C.violetHi }}>1,05 млн грн</span>
+          план <span style={{ color: C.violetHi }}>500 000 грн</span> · на полиці ≈ 1,05 млн · станції, генератори, інвертори + АКБ
         </Mono>
       </div>
       <div style={{ position: "absolute", left: 120, top: 420 }}>
@@ -514,7 +520,7 @@ export const S11Energy: React.FC<{ dur: number }> = ({ dur }) => {
           КОМУ ПРОПОНУВАТИ (від швидкого до довгого)
         </Mono>
         {energy.map((e, i) => {
-          const t = interpolate(frame - 30 - i * 10, [0, 12], [0, 1], clamp);
+          const t = interpolate(frame - 330 - i * 40, [0, 12], [0, 1], clamp);
           return (
             <div key={e} style={{ display: "flex", gap: 22, alignItems: "baseline", marginTop: 22, opacity: t, transform: `translateX(${(1 - t) * -30}px)` }}>
               <Mono size={26} color={C.violetHi}>
@@ -525,14 +531,14 @@ export const S11Energy: React.FC<{ dur: number }> = ({ dur }) => {
           );
         })}
       </div>
-      <Panel x={1180} y={420} w={600} h={420} start={70} accent>
+      <Panel x={1180} y={400} w={600} h={470} start={540} accent>
         <div style={{ padding: 34 }}>
           <Mono size={22} color={C.violetHi}>
             ЦІЛЬ ТИЖНЯ
           </Mono>
           <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 20 }}>
             {steps.map((s, i) => {
-              const t = interpolate(frame - 90 - i * 12, [0, 10], [0, 1], clamp);
+              const t = interpolate(frame - 560 - i * 30, [0, 10], [0, 1], clamp);
               return (
                 <div key={s.l} style={{ display: "flex", alignItems: "baseline", gap: 20, opacity: t }}>
                   <span style={{ fontFamily: C.display, fontWeight: 900, fontSize: 64, color: C.white, width: 90 }}>{s.v}</span>
@@ -548,9 +554,9 @@ export const S11Energy: React.FC<{ dur: number }> = ({ dur }) => {
           </Mono>
         </div>
       </Panel>
-      <div style={{ position: "absolute", left: 120, right: 120, top: 905, ...foot }}>
+      <div style={{ position: "absolute", left: 120, right: 120, top: 925, ...foot }}>
         <Mono size={28} color={C.white} style={{ lineHeight: 1.5 }}>
-          1–3 продажі = <span style={{ color: C.violetHi }}>+40–200 тис.</span> у план енергії. Замість знижки: наявність, договір, гарантія, розрахунок навантаження.
+          1 комплект Growatt SPE12000ES + 16LM-A1 = 161 тис. → план = <span style={{ color: C.violetHi }}>3–4 великі продажі</span>. Замість знижки: наявність, договір, гарантія, розрахунок навантаження.
         </Mono>
       </div>
     </Scene>
@@ -559,10 +565,10 @@ export const S11Energy: React.FC<{ dur: number }> = ({ dur }) => {
 
 // 12. Таймлайн по неделям
 const weeks = [
-  { d: "06–11.10", t: "Запуск", s: "ядро на видне місце, зв'язки на касу, список 30 адрес" },
+  { d: "06–11.10", t: "Запуск", s: "ядро на видне місце, зв'язки на касу; 10.10 — підсумок декади 608k" },
   { d: "12–18.10", t: "Зміна акцій", s: "15.10 — оновити каталог і зв'язки, сезонна викладка" },
   { d: "19–25.10", t: "Нове ядро + B2B", s: "бригади, СТО, фермери; повторний контакт по КП" },
-  { d: "26–31.10", t: "Дотиснути", s: "розрив до 608k ÷ дні, що лишились" },
+  { d: "26–31.10", t: "Дотиснути", s: "розрив до 1,9 млн ÷ дні, що лишились" },
 ];
 
 export const S12Timeline: React.FC<{ dur: number }> = ({ dur }) => {
@@ -570,9 +576,9 @@ export const S12Timeline: React.FC<{ dur: number }> = ({ dur }) => {
   const x0 = 200;
   const x1 = 1720;
   const y = 470;
-  const t = interpolate(frame, [14, 170], [0, 1], { ...clamp, easing: Easing.inOut(Easing.quad) });
+  const t = interpolate(frame, [14, dur - 70], [0, 1], { ...clamp, easing: Easing.inOut(Easing.quad) });
   const px = x0 + (x1 - x0) * t;
-  const foot = useRise(180);
+  const foot = useRise(dur - 60);
   return (
     <Scene dur={dur}>
       <Tag>План по тижнях · жовтень</Tag>
@@ -611,7 +617,7 @@ export const S12Timeline: React.FC<{ dur: number }> = ({ dur }) => {
 
 // 13. Ежедневный листок — «форма»
 const daily = [
-  "Продажі за день і з початку місяця · скільки до 608k",
+  "Продажі за день і з місяця · скільки до плану (декада / 1,9 млн)",
   "Кількість чеків · середній чек",
   "Чеки з допродажем · сума допродажів",
   "Продані штуки ядра акцій",
@@ -659,10 +665,10 @@ export const S13Daily: React.FC<{ dur: number }> = ({ dur }) => {
 export const S14Final: React.FC<{ dur: number }> = ({ dur }) => {
   const frame = useCurrentFrame();
   const a = useSlam(4);
-  const b = useSlam(40, 1.8);
+  const b = useSlam(125, 1.8);
   const top = useRise(0);
-  const foot = useRise(70);
-  const flash = interpolate(frame, [38, 40, 48], [0, 0.55, 0], clamp);
+  const foot = useRise(140);
+  const flash = interpolate(frame, [123, 125, 133], [0, 0.55, 0], clamp);
   return (
     <Scene dur={dur}>
       <AbsoluteFill style={center}>
