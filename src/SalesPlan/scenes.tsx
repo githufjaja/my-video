@@ -63,37 +63,75 @@ export const S2Question: React.FC<{ dur: number }> = ({ dur }) => {
   );
 };
 
-// 3. Темп
+// 3. Факт и темп (факт 315 000 за 01–05.10)
+const progress = [
+  { label: "Декада 01–10.10", plan: "608 000", pct: 315000 / 608000, at: 90 },
+  { label: "Місяць", plan: "1 900 000", pct: 315000 / 1900000, at: 330 },
+];
+
 export const S3Pace: React.FC<{ dur: number }> = ({ dur }) => {
+  const frame = useCurrentFrame();
   const head = useSlam(4);
   return (
-    <Scene dur={dur} glowY={35}>
-      <Tag>Потрібний темп</Tag>
-      <div style={{ position: "absolute", left: 0, right: 0, top: 210, textAlign: "center", ...head }}>
-        <Big size={180}>
-          ≈ <Counter to={61300} start={4} dur={36} />
+    <Scene dur={dur} glowY={30}>
+      <Tag>Факт на 05.10</Tag>
+      <div style={{ position: "absolute", left: 120, top: 150, display: "flex", alignItems: "baseline", gap: 30, ...head, transformOrigin: "left center" }}>
+        <Big size={150}>
+          <Counter to={315000} start={4} dur={36} />
         </Big>
-        <Mono size={34} color={C.violetHi} style={{ marginTop: 20, letterSpacing: 4 }}>
-          ГРИВЕНЬ НА ДЕНЬ · 1 900 000 / 31
+        <Big size={70} color={C.violet}>
+          грн
+        </Big>
+        <Mono size={30} color={C.dim}>
+          за 5 днів
         </Mono>
       </div>
-      <Panel x={260} y={640} w={380} h={170} start={120}>
-        <Box big="план" small="на місяць / декаду" />
+      {progress.map((p, i) => {
+        const t = interpolate(frame - p.at, [0, 30], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
+        const y = 360 + i * 100;
+        const W = 1300;
+        return (
+          <div key={p.label} style={{ position: "absolute", left: 120, top: y, opacity: interpolate(frame - p.at, [0, 8], [0, 1], clamp) }}>
+            <div style={{ display: "flex", gap: 20, alignItems: "baseline" }}>
+              <Mono size={26} color={C.white}>
+                {p.label}
+              </Mono>
+              <Mono size={24}>план {p.plan}</Mono>
+            </div>
+            <div style={{ position: "relative", marginTop: 12, width: W, height: 26, border: `2px solid rgba(244,241,255,0.35)` }}>
+              <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: W * p.pct * t, background: C.violet, boxShadow: glow(0.8, 14) }} />
+            </div>
+            <div style={{ position: "absolute", left: W + 30, top: 34 }}>
+              <span style={{ fontFamily: C.display, fontWeight: 900, fontSize: 44, color: C.violetHi }}>{(p.pct * 100 * t).toFixed(1).replace(".", ",")}%</span>
+            </div>
+          </div>
+        );
+      })}
+      <Panel x={120} y={640} w={800} h={250} start={140}>
+        <PaceBox left="293 000" note="лишилось до плану декади · 5 днів" pace="≈ 58 600" />
       </Panel>
-      <Wire x1={640} y1={725} x2={770} y2={725} start={136} />
-      <Panel x={770} y={640} w={380} h={170} start={146}>
-        <Box big="− факт" small="порахувати сьогодні" />
+      <Panel x={1000} y={640} w={800} h={250} start={360} accent>
+        <PaceBox left="1 585 000" note="лишилось до плану місяця · 26 днів" pace="≈ 61 000" />
       </Panel>
-      <Wire x1={1150} y1={725} x2={1280} y2={725} start={162} />
-      <Panel x={1280} y={640} w={380} h={170} start={172} accent>
-        <Box big="÷ дні" small="що лишились" />
-      </Panel>
-      <div style={{ position: "absolute", left: 0, right: 0, top: 880, textAlign: "center" }}>
-        <Typed text="= щоденний темп → цифру на стіну" start={260} cps={40} size={30} color={C.white} />
+      <div style={{ position: "absolute", left: 0, right: 0, top: 940, textAlign: "center" }}>
+        <Typed text="щоденний темп → цифру на стіну" start={dur - 120} cps={35} size={30} color={C.white} />
       </div>
     </Scene>
   );
 };
+
+const PaceBox: React.FC<{ left: string; note: string; pace: string }> = ({ left, note, pace }) => (
+  <div style={{ padding: "26px 34px" }}>
+    <div style={{ fontFamily: C.display, fontWeight: 900, fontSize: 56, color: C.white }}>{left}</div>
+    <Mono size={24}>{note}</Mono>
+    <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginTop: 18 }}>
+      <span style={{ fontFamily: C.display, fontWeight: 900, fontSize: 64, color: C.violet, textShadow: glow(0.9, 22) }}>{pace}</span>
+      <Mono size={26} color={C.white}>
+        грн / день
+      </Mono>
+    </div>
+  </div>
+);
 
 const Box: React.FC<{ big: string; small: string }> = ({ big, small }) => (
   <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100%" }}>

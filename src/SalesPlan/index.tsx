@@ -26,7 +26,7 @@ const scenes: [React.FC<{ dur: number }>, number, number][] = [
   // [сцена, минимум кадров, длина озвучки в секундах]
   [S1Hook, 150, 10.76],
   [S2Question, 90, 1.9],
-  [S3Pace, 200, 12.26],
+  [S3Pace, 200, 22.38],
   [S4Flash, 45, 1.11],
   [S5Levers, 270, 16.21],
   [S6Core, 240, 17.65],
@@ -44,8 +44,32 @@ const durOf = (min: number, vo: number) => Math.max(min, Math.ceil(vo * FPS) + V
 
 export const SALES_PLAN_DURATION = scenes.reduce((s, [, min, vo]) => s + durOf(min, vo), 0);
 
+// Интервалы озвучки (в кадрах) — под них музыка приглушается.
+const voIntervals = (() => {
+  let at = 0;
+  return scenes.map(([, min, vo]) => {
+    const r: [number, number] = [at + VO_START, at + VO_START + Math.ceil(vo * FPS)];
+    at += durOf(min, vo);
+    return r;
+  });
+})();
+
+const MUSIC_UNDER_VOICE = 0.12;
+const MUSIC_OPEN = 0.3;
+const musicVolume = (f: number) => {
+  // плавно: 10 кадров на подъём/спад
+  let k = 0;
+  for (const [a, b] of voIntervals) {
+    if (f >= a - 10 && f <= b + 10) {
+      k = Math.max(k, Math.min(1, (f - (a - 10)) / 10, (b + 10 - f) / 10));
+    }
+  }
+  return MUSIC_OPEN + (MUSIC_UNDER_VOICE - MUSIC_OPEN) * k;
+};
+
 export const SalesPlan: React.FC = () => (
   <AbsoluteFill style={{ background: "#06050b" }}>
+    <Html5Audio src={staticFile("music/bg.mp3")} volume={musicVolume} />
     <Series>
       {scenes.map(([Comp, min, vo], i) => {
         const dur = durOf(min, vo);
