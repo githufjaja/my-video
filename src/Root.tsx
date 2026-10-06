@@ -2,6 +2,7 @@ import "./index.css";
 import { Composition } from "remotion";
 import { HelloWorld } from "./HelloWorld";
 import { Logo } from "./HelloWorld/Logo";
+import { SalesPlan, SALES_PLAN_DURATION } from "./SalesPlan";
 
 // Each <Composition> is an entry in the sidebar!
 
@@ -25,6 +26,15 @@ export const RemotionRoot: React.FC = () => {
           logoColor1: "#91EAE4",
           logoColor2: "#86A8E7",
         }}
+      />
+
+      <Composition
+        id="SalesPlan"
+        component={SalesPlan}
+        durationInFrames={SALES_PLAN_DURATION}
+        fps={30}
+        width={1920}
+        height={1080}
       />
 
       {/* Mount any React component to make it show up in the sidebar and work on it individually! */}
