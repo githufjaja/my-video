@@ -20,6 +20,8 @@ effort: high
    `ui-ux-pro-max`: `python3 .claude/skills/ui-ux-pro-max/scripts/search.py "<запрос>" --design-system`.
    Для шлифовки и аудита готовой страницы — `.claude/skills/impeccable/SKILL.md`, для
    «не шаблонного» вида — `.claude/skills/design-taste-frontend/SKILL.md`.
+   Анимации — `.claude/skills/gsap-*/`, 3D — `.claude/skills/threejs-*/`, «вау»-эффекты —
+   `.claude/skills/genjutsu/`, стиль по образцу чужого сайта — `.claude/skills/design-dna/`.
    Цвета и шрифты бренда dflust из `brand/brand.md` важнее его рекомендаций.
 1. Пойми цель страницы и одно главное действие (позвонить, написать, купить). Не хватает
    фактов (тексты, цены, контакты) — `[уточнить]`, не выдумывай.
