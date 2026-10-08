@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Taqueria El Chefe | Birria Tacos in Northeast Calgary</title>
-<meta name="description" content="Taqueria El Chefe, 2316 27 Ave NE, Calgary. Beef birria tacos with cheese and consomé, birria quesadilla, shrimp tacos and nachos. Takeout, dine-in and curbside pickup. Call +1 403-230-7206.">
+<meta name="description" content="Taqueria El Chefe, 2316 27 Ave NE, Calgary. Birria tacos, birria pizza and birria quesadilla. Takeout, dine-in and curbside pickup. Call +1 403-230-7206.">
 <meta name="theme-color" content="#B1220F">
 <meta name="color-scheme" content="light">
 
 <!-- Open Graph. TODO: og:image needs an absolute URL once the domain is known (file: assets/og.png). -->
 <meta property="og:type" content="restaurant.restaurant">
 <meta property="og:title" content="Taqueria El Chefe | Birria Tacos in Northeast Calgary">
-<meta property="og:description" content="Beef birria tacos with cheese and consomé for dipping. Takeout in northeast Calgary, made to order. 4.6 on Google from 1,647 reviews.">
+<meta property="og:description" content="Birria tacos, birria pizza and birria quesadilla in northeast Calgary. 4.6 on Google from 1,647 reviews.">
 <meta property="og:locale" content="en_CA">
 <!-- <meta property="og:image" content="https://DOMAIN/assets/og.png"> -->
 <meta name="twitter:card" content="summary_large_image">
@@ -37,6 +37,7 @@
     "postalCode": "T2E 7A7",
     "addressCountry": "CA"
   },
+  "hasMenu": "https://order.online/en-CA/store/taqueria-el-chefe-calgary-27739963",
   "hasMap": "https://maps.app.goo.gl/Mue8aswW9nrPnbX9A",
   "sameAs": ["https://www.instagram.com/elchefecalgary/"]
 }
@@ -68,7 +69,7 @@
 html{color-scheme:light;scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:76px;scrollbar-color:var(--red) var(--masa)}
 body{margin:0;background:var(--masa);color:var(--char);font:400 1.0625rem/1.55 var(--body);text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;padding-bottom:calc(var(--bar-h) + env(safe-area-inset-bottom))}
 img,svg{display:block;max-width:100%}
-h1,h2,h3,p,ul,figure,blockquote,dl,dd{margin:0}
+h1,h2,h3,h4,p,ul,figure,blockquote,dl,dd{margin:0}
 ul{padding:0;list-style:none}
 a{color:inherit;text-underline-offset:.2em;text-decoration-thickness:2px}
 ::selection{background:var(--lime);color:var(--char)}
@@ -155,26 +156,61 @@ p{text-wrap:pretty;max-width:62ch}
 .h-script{display:inline-block;font-family:var(--script);font-size:.62em;color:var(--red);transform:rotate(-4deg) translateY(-.15em);margin-left:.35em;white-space:nowrap}
 .on-char .h-script{color:var(--lime)}
 .feat{display:grid;gap:16px;margin-top:clamp(32px,5vw,56px)}
-.tile{position:relative;overflow:hidden;padding:24px;min-height:250px;display:flex;flex-direction:column;justify-content:space-between;gap:28px}
-.tile.t1{background:var(--red);color:var(--masa)}
+.tile{position:relative;overflow:hidden;padding:24px;min-height:260px;display:flex;flex-direction:column;justify-content:space-between;gap:28px}
+.tile.t1{background:var(--red);color:var(--masa);min-height:340px}
 .tile.t2{background:var(--char);color:var(--masa)}
+.tile.t3{background:var(--masa-hi);color:var(--char);border:3px solid var(--char)}
 .tile .tag{align-self:flex-start;background:var(--masa);color:var(--char);font-weight:800;font-size:.875rem;padding:5px 11px;line-height:1.2}
-.tile h3{font:400 clamp(1.7rem,5vw,2.75rem)/1.05 var(--display);max-width:10.5ch;position:relative;z-index:1}
+.tile.t3 .tag{background:var(--char);color:var(--masa)}
+.tile .tbody{position:relative;z-index:1;display:grid;gap:10px;justify-items:start}
+.tile h4{font:400 clamp(1.7rem,5vw,2.75rem)/1.05 var(--display);max-width:10.5ch}
+.tile.t2 h4,.tile.t3 h4{font-size:clamp(1.55rem,4.6vw,2.25rem)}
+.tile .price{font:400 1.375rem/1 var(--display);font-variant-numeric:tabular-nums;border:2.5px solid currentColor;padding:6px 10px 5px}
+.tile .desc{font-size:1rem;line-height:1.45;max-width:34ch;font-weight:500}
 .tile .glyph{position:absolute;right:-6px;top:-4px;width:min(46%,230px);height:auto;transform:rotate(6deg)}
+.tile.t2 .glyph,.tile.t3 .glyph{width:min(40%,170px);top:14px;right:6px}
+.tile.t1 .glyph{right:4px;width:min(52%,260px)}
+.tile.t1 .tbody{margin-top:auto}
+.tile.t2:not(:has(.photo)),.tile.t3:not(:has(.photo)){display:grid;grid-template-columns:1fr auto;grid-template-rows:auto 1fr;gap:12px;align-content:space-between}
+.tile.t2 .glyph,.tile.t3 .glyph{position:static;grid-area:1/2;justify-self:end;align-self:start;width:clamp(120px,30vw,170px);margin:-14px -12px -10px 0}
+.tile.t2 .tbody,.tile.t3 .tbody{grid-area:2/1/3/3;align-self:end}
+.feat-k{margin-top:clamp(32px,5vw,56px);font:400 1.125rem/1.2 var(--display);color:var(--red)}
+.feat-k + .feat{margin-top:14px}
 .tile .photo{display:block;width:calc(100% + 48px);max-width:none;margin:-24px -24px 0;aspect-ratio:4/3;object-fit:cover}
 .tile:has(.photo) .glyph{display:none}
-.board{margin-top:clamp(40px,6vw,72px);max-width:760px}
-.board h3{font:400 1.5rem/1.1 var(--display);margin-bottom:8px}
-.board li{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 16px;padding:16px 0}
-.board li + li{border-top:2px solid var(--char)}
-.board .n{font:400 clamp(1.3rem,3.4vw,1.75rem)/1.15 var(--display)}
-.board .d{font-weight:500;color:var(--ink-soft)}
+
+.full{margin-top:clamp(48px,7vw,88px)}
+.mcols{column-gap:clamp(32px,5vw,72px)}
+.msec{break-inside:avoid;margin-bottom:clamp(28px,4vw,40px)}
+.msec h4{font:400 clamp(1.3rem,3.4vw,1.75rem)/1.1 var(--display);padding-bottom:10px;border-bottom:4px solid var(--char)}
+.mnote{margin-top:10px;font-weight:700;font-size:.9375rem;color:var(--red)}
+.mlist li{padding:14px 0}
+.mlist li + li{border-top:2px solid rgb(31 21 17 / .22)}
+.mrow{display:flex;justify-content:space-between;align-items:baseline;gap:6px 16px}
+.mrow .n{font:400 clamp(1rem,2.6vw,1.1875rem)/1.2 var(--display);min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px}
+.mrow .p{font:800 1.125rem/1.2 var(--body);font-variant-numeric:tabular-nums;white-space:nowrap}
+.mk{display:inline-block;margin-left:0;font:800 .75rem/1 var(--body);letter-spacing:.02em;text-transform:uppercase;color:var(--red);border:2px solid var(--red);padding:3px 6px 2px;white-space:nowrap}
+.mlist .d{margin-top:4px;font-size:.9375rem;line-height:1.45;color:var(--ink-soft);font-weight:500;max-width:46ch}
+.menu-end{margin-top:clamp(8px,2vw,16px);display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px}
+.menu-end .fine{margin:0;font-size:.9375rem}
 .fine{margin-top:28px;font-weight:500;color:var(--ink-soft);max-width:52ch}
+@media (min-width:600px) and (max-width:799px){
+  .feat{grid-template-columns:1fr 1fr;align-items:start}
+  .tile.t1{grid-column:1/-1}
+  .tile.t3{margin-top:40px}
+}
 @media (min-width:800px){
   .feat{grid-template-columns:7fr 5fr;gap:24px;align-items:start}
-  .tile{min-height:380px}
-  .tile.t2{margin-top:64px}
-  .board{margin-left:auto;margin-right:0}
+  .tile{min-height:300px}
+  .tile.t1{grid-row:1 / span 2;min-height:540px;align-self:stretch}
+  .tile.t1 .glyph{transform:rotate(-4deg)}
+  .tile.t1 h4{font-size:clamp(2.6rem,5vw,4rem)}
+  .tile.t1 .desc{font-size:1.125rem}
+  .tile.t1:not(:has(.photo)){display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:1fr auto}
+  .tile.t1 .glyph{position:static;align-self:center;justify-self:center;width:min(86%,440px);height:auto;margin:0}
+  .tile.t2{margin-top:56px}
+  .tile.t3{margin-right:44px}
+  .mcols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:clamp(32px,5vw,72px);align-items:start}
 }
 
 /* ---------- Birria ---------- */
@@ -322,6 +358,33 @@ p{text-wrap:pretty;max-width:62ch}
       </g>
       <path class="k" d="M-100 40H100V50Q88 70 76 52Q66 76 52 52Q40 62 26 48Q14 74 0 50Q-14 64-26 48Q-40 78-54 50Q-66 66-78 50Q-90 62-100 50Z" fill="#F3C94B" stroke-width="4"/>
     </symbol>
+    <!-- birria pizza: two stacked tortillas, cheese, cut in wedges -->
+    <symbol id="pizza" viewBox="-110 -52 220 140" overflow="visible">
+      <ellipse class="k" cx="8" cy="42" rx="96" ry="38" fill="#B8863A" stroke-width="5"/>
+      <ellipse class="k" cx="8" cy="30" rx="96" ry="38" fill="#D2A04E" stroke-width="5"/>
+      <ellipse class="k" cx="0" cy="14" rx="96" ry="38" fill="#C99443" stroke-width="5"/>
+      <ellipse class="k" cx="0" cy="2" rx="96" ry="38" fill="#EBC77A" stroke-width="5"/>
+      <path class="k" d="M-84 2C-84-18-44-32 0-32C44-32 84-18 84 2C84 22 44 34 0 34C-44 34-84 22-84 2Z" fill="#F3C94B" stroke-width="3.5"/>
+      <path class="k" d="M-56 26Q-54 42-46 40Q-38 38-40 29Z" fill="#F3C94B" stroke-width="3"/>
+      <path class="k" d="M30 31Q32 49 41 47Q50 45 46 28Z" fill="#F3C94B" stroke-width="3"/>
+      <path class="k" d="M72 12Q82 24 88 14Q90 6 80 4Z" fill="#F3C94B" stroke-width="3"/>
+      <g class="k" stroke-width="2.5" fill="#D8431C">
+        <path d="M-60-4Q-52-12-42-6Q-38 2-48 6Q-58 6-60-4Z"/>
+        <path d="M-14-20Q-4-26 6-20Q10-12 0-8Q-12-10-14-20Z"/>
+        <path d="M36-6Q46-14 56-6Q58 2 48 6Q38 4 36-6Z"/>
+        <path d="M-26 12Q-16 6-6 12Q-4 20-14 22Q-24 20-26 12Z"/>
+        <path d="M14 14Q24 8 32 14Q34 22 24 24Q14 22 14 14Z"/>
+      </g>
+      <g class="k" stroke-width="2" fill="#C3DD3B">
+        <ellipse cx="-30" cy="-12" rx="7" ry="3.5" transform="rotate(-20 -30 -12)"/>
+        <ellipse cx="24" cy="-18" rx="7" ry="3.5" transform="rotate(16 24 -18)"/>
+        <ellipse cx="-6" cy="28" rx="7" ry="3.5" transform="rotate(-8 -6 28)"/>
+        <ellipse cx="62" cy="14" rx="6" ry="3" transform="rotate(20 62 14)"/>
+      </g>
+      <g stroke="#1F1511" stroke-width="4" stroke-linecap="round" opacity=".7">
+        <path d="M-86 2L86 2"/><path d="M-44-27L44 31"/><path d="M44-27L-44 31"/>
+      </g>
+    </symbol>
     <!-- Tabler Icons (MIT), 24px, stroke 2 -->
     <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2"/></symbol>
     <symbol id="i-pin" viewBox="0 0 24 24"><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z"/></symbol>
@@ -357,7 +420,7 @@ p{text-wrap:pretty;max-width:62ch}
     <div class="wrap hero-in">
       <div class="hero-copy">
         <h1 id="hero-h" class="lockup rise" style="--i:0"><span class="script">Taqueria</span><span class="name">El Chefe</span></h1>
-        <p class="sub rise" style="--i:1">Beef birria tacos with cheese, served with consomé for dipping. Takeout in northeast Calgary, made to order.</p>
+        <p class="sub rise" style="--i:1">Birria tacos with 8-hour slow-braised beef, served with consomé. Takeout in northeast Calgary.</p>
         <div class="cta rise" style="--i:2">
           <a class="btn btn-lime" data-order href="https://order.online/en-CA/store/taqueria-el-chefe-calgary-27739963" target="_blank" rel="noopener"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-bag"/></svg>Order online</a>
           <a class="btn btn-line" href="tel:+14032307206"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-phone"/></svg>Call</a>
@@ -413,37 +476,100 @@ p{text-wrap:pretty;max-width:62ch}
     <div class="wrap">
       <div class="rv">
         <h2 id="menu-h">On the menu<span class="h-script" lang="es" aria-hidden="true">hecho al momento</span></h2>
-        <p class="intro">Everything is made to order, so give it a few minutes. Ask for the full menu and prices when you call or order online.</p>
+        <p class="intro">Prices in CAD, before tax.</p>
       </div>
 
+      <h3 class="feat-k rv">Most ordered online</h3>
       <div class="feat">
         <article class="tile t1 rv">
-          <!-- PHOTO SLOT: add assets/photos/birria-quesadilla.jpg then uncomment (tile switches to photo layout automatically)
-          <img class="photo" src="assets/photos/birria-quesadilla.jpg" alt="Birria quesadilla with dipping sauce" width="1200" height="900" loading="lazy">
+          <!-- PHOTO SLOT: add assets/photos/birria-pizza.jpg then uncomment (tile switches to photo layout automatically)
+          <img class="photo" src="assets/photos/birria-pizza.jpg" alt="Birria pizza: two flour tortillas with mozzarella and slow-braised beef, cut in wedges" width="1200" height="900" loading="lazy">
           -->
-          <span class="tag">Popular on Google</span>
-          <h3>Birria Quesadilla with Dipping Sauce</h3>
-          <svg class="glyph" viewBox="-110 -96 220 150" aria-hidden="true"><use href="#quesa" x="-110" y="-96" width="220" height="150"/></svg>
+          <svg class="glyph" viewBox="-110 -52 220 140" aria-hidden="true"><use href="#pizza" x="-110" y="-52" width="220" height="140"/></svg>
+          <div class="tbody">
+            <h4>Birria Pizza</h4>
+            <p class="price"><span class="sr">Price </span>$26.50</p>
+            <p class="desc">Two 10-inch flour tortillas filled with mozzarella and slow-braised beef.</p>
+          </div>
         </article>
         <article class="tile t2 rv" style="--d:1">
-          <!-- PHOTO SLOT: add assets/photos/campechano-tacos.jpg then uncomment
-          <img class="photo" src="assets/photos/campechano-tacos.jpg" alt="Campechano tacos" width="1200" height="900" loading="lazy">
+          <!-- PHOTO SLOT: add assets/photos/birria-tacos.jpg then uncomment (tile switches to photo layout automatically)
+          <img class="photo" src="assets/photos/birria-tacos.jpg" alt="Birria tacos with consomé for dipping" width="1200" height="900" loading="lazy">
           -->
-          <span class="tag">Popular on Google</span>
-          <h3>Campechano Tacos</h3>
           <svg class="glyph" viewBox="-110 -64 220 176" aria-hidden="true"><use href="#taco" x="-110" y="-64" width="220" height="176"/></svg>
+          <div class="tbody">
+            <h4>Birria Tacos</h4>
+            <p class="price"><span class="sr">Price </span>$18.50</p>
+            <p class="desc">Three birria tacos with consomé for dipping.</p>
+          </div>
+        </article>
+        <article class="tile t3 rv" style="--d:2">
+          <!-- PHOTO SLOT: add assets/photos/birria-quesadilla.jpg then uncomment (tile switches to photo layout automatically)
+          <img class="photo" src="assets/photos/birria-quesadilla.jpg" alt="Birria quesadilla with consomé" width="1200" height="900" loading="lazy">
+          -->
+          <svg class="glyph" viewBox="-110 -96 220 150" aria-hidden="true"><use href="#quesa" x="-110" y="-96" width="220" height="150"/></svg>
+          <div class="tbody">
+            <h4>Birria Quesadilla</h4>
+            <p class="price"><span class="sr">Price </span>$20.50</p>
+            <p class="desc">12-inch flour tortilla with birria beef. Comes with consomé.</p>
+          </div>
         </article>
       </div>
 
-      <div class="board rv">
-        <h3>Also on the menu</h3>
-        <ul>
-          <li><span class="n">Beef birria tacos with cheese</span><span class="d">served with consomé</span></li>
-          <li><span class="n">Birria pizza</span></li>
-          <li><span class="n">Shrimp tacos</span></li>
-          <li><span class="n">Nachos</span></li>
-          <li><span class="n">Cheese &amp; bean quesadilla</span><span class="d">vegetarian option, per a guest review</span></li>
-        </ul>
+      <div class="full rv">
+        <h3 class="sr">Full menu</h3>
+        <div class="mcols">
+          <section class="msec" aria-labelledby="ms0">
+            <h4 id="ms0">Tacos &amp; Burritos</h4>
+            <p class="mnote">Any taco order can be made into a burrito for an extra charge.</p>
+            <ul class="mlist">
+              <li><div class="mrow"><span class="n">Birria Tacos <span class="mk">Most ordered</span></span><span class="p"><span class="sr">Price </span>$18.50</span></div><p class="d">Three tacos with 8-hour slow-braised beef, seasoned with dried chilies and Mexican spices. Comes with consomé.</p></li>
+              <li><div class="mrow"><span class="n">Campechano Tacos</span><span class="p"><span class="sr">Price </span>$18.50</span></div><p class="d">A mix of grilled steak and grilled chicken.</p></li>
+              <li><div class="mrow"><span class="n">Carne Asada Tacos</span><span class="p"><span class="sr">Price </span>$18.00</span></div><p class="d">Seasoned grilled steak.</p></li>
+              <li><div class="mrow"><span class="n">Grilled Chicken Tacos</span><span class="p"><span class="sr">Price </span>$17.95</span></div><p class="d">Chicken in our house marinade, grilled, with chipotle mayo and coleslaw.</p></li>
+              <li><div class="mrow"><span class="n">Shrimp Tacos</span><span class="p"><span class="sr">Price </span>$19.00</span></div><p class="d">Chipotle, garlic and lime-cilantro marinated shrimp on crispy cabbage with spicy mayo.</p></li>
+            </ul>
+          </section>
+          <section class="msec" aria-labelledby="ms1">
+            <h4 id="ms1">Quesadillas &amp; More</h4>
+            <ul class="mlist">
+              <li><div class="mrow"><span class="n">Birria Pizza <span class="mk">Most ordered</span></span><span class="p"><span class="sr">Price </span>$26.50</span></div><p class="d">Two 10-inch flour tortillas filled with mozzarella and slow-braised beef.</p></li>
+              <li><div class="mrow"><span class="n">Birria Quesadilla <span class="mk">Most ordered</span></span><span class="p"><span class="sr">Price </span>$20.50</span></div><p class="d">12-inch flour tortilla with 8-hour slow-braised beef, seasoned with dried chilies and Mexican spices. Comes with consomé.</p></li>
+              <li><div class="mrow"><span class="n">Birria Ramen</span><span class="p"><span class="sr">Price </span>$16.50</span></div><p class="d">Maruchan noodles, birria consomé, mozzarella and birria beef, topped with onion and cilantro. Comes with hot sauce and limes.</p></li>
+              <li><div class="mrow"><span class="n">Chicken Quesadilla</span><span class="p"><span class="sr">Price </span>$20.00</span></div><p class="d">12-inch flour tortilla, mozzarella, coleslaw, chipotle mayo and house-marinated grilled chicken.</p></li>
+              <li><div class="mrow"><span class="n">Carne Asada Quesadilla</span><span class="p"><span class="sr">Price </span>$21.00</span></div><p class="d">12-inch flour tortilla, mozzarella and seasoned grilled steak.</p></li>
+              <li><div class="mrow"><span class="n">Campechano Quesadilla</span><span class="p"><span class="sr">Price </span>$21.00</span></div><p class="d">12-inch flour tortilla, mozzarella, grilled steak and grilled chicken.</p></li>
+            </ul>
+          </section>
+          <section class="msec" aria-labelledby="ms2">
+            <h4 id="ms2">Sides &amp; Extras</h4>
+            <ul class="mlist">
+              <li><div class="mrow"><span class="n">Elote Loco</span><span class="p"><span class="sr">Price </span>$8.50</span></div><p class="d">Mexican-style corn on the cob with mayo, Hot Cheeto dust and queso fresco.</p></li>
+              <li><div class="mrow"><span class="n">Chips &amp; Salsa</span><span class="p"><span class="sr">Price </span>$5.50</span></div><p class="d">5 oz chunky salsa with fried chips.</p></li>
+              <li><div class="mrow"><span class="n">Extra Hot Sauce</span><span class="p"><span class="sr">Price </span>$1.00</span></div><p class="d">Salsa verde or El Chefe hot sauce.</p></li>
+              <li><div class="mrow"><span class="n">Cheese</span><span class="p"><span class="sr">Price </span>$2.50</span></div><p class="d">Add cheese.</p></li>
+            </ul>
+          </section>
+          <div class="msec-pair">
+          <section class="msec" aria-labelledby="ms3">
+            <h4 id="ms3">Sweets</h4>
+            <ul class="mlist">
+              <li><div class="mrow"><span class="n">Lemon Lime Cheesecake</span><span class="p"><span class="sr">Price </span>$8.00</span></div></li>
+              <li><div class="mrow"><span class="n">Chamoy Candy</span><span class="p"><span class="sr">Price </span>$10.50</span></div><p class="d">Homies Candy gummies covered in chamoy and tangy spices, with chamoy dip.</p></li>
+            </ul>
+          </section>
+          <section class="msec" aria-labelledby="ms4">
+            <h4 id="ms4">Drinks</h4>
+            <ul class="mlist">
+              <li><div class="mrow"><span class="n">Jarritos</span><span class="p"><span class="sr">Price </span>$5.25</span></div><p class="d">Imported Mexican soda.</p></li>
+            </ul>
+          </section>
+          </div>
+        </div>
+        <div class="menu-end">
+          <p class="fine">The online ordering page has current prices.</p>
+          <a class="btn btn-lime" data-order href="https://order.online/en-CA/store/taqueria-el-chefe-calgary-27739963" target="_blank" rel="noopener"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-bag"/></svg>Order online</a>
+        </div>
       </div>
     </div>
   </section>
@@ -457,8 +583,7 @@ p{text-wrap:pretty;max-width:62ch}
         <span class="l3 rv">Sip the rest.</span>
       </h2>
       <div class="copy rv">
-        <p>Birria is stewed beef, and the consomé is the broth that comes with it. Dunk a beef birria taco with cheese into the consomé, then drink what is left.</p>
-        <p>Everything is made to order, so expect a short wait.</p>
+        <p>Our birria is beef slow-braised for 8 hours with dried chilies and Mexican spices. The consomé is the broth that comes with it. Dunk a birria taco into the consomé, then drink what is left.</p>
       </div>
     </div>
   </section>
@@ -538,7 +663,7 @@ p{text-wrap:pretty;max-width:62ch}
           <div>
             <dt>Hours</dt>
             <!-- HOURS: edit SITE.hours in the script at the bottom. Until it is filled in, this line shows. -->
-            <dd id="hours"><p>Opens 12:00.</p><p class="small">Call to confirm hours.</p></dd>
+            <dd><div id="hours"><p>Tuesday to Saturday from 12:00 pm. Closed Sunday and Monday.</p></div><p class="small">Online orders until 9:40 pm. Call to confirm hours.</p></dd>
           </div>
           <div>
             <dt>Instagram</dt>
@@ -581,7 +706,7 @@ p{text-wrap:pretty;max-width:62ch}
       <a href="tel:+14032307206">+1 403-230-7206</a>
       <a href="https://www.instagram.com/elchefecalgary/" target="_blank" rel="noopener">@elchefecalgary</a>
     </address>
-    <small>Ratings and reviews are from Google. Menu and hours can change, so call to confirm.</small>
+    <small>Ratings and reviews are from Google.</small>
   </div>
 </footer>
 
@@ -599,9 +724,12 @@ p{text-wrap:pretty;max-width:62ch}
 const SITE = {
   // Online ordering: the restaurant's DoorDash storefront (order.online, store 27739963).
   orderUrl: "https://order.online/en-CA/store/taqueria-el-chefe-calgary-27739963",
-  // Full schedule. Leave empty to show "Opens 12:00 / Call to confirm hours".
+  // Full schedule. Leave empty to show the static fallback line.
   // Example: [{ day: "Monday", time: "12:00 to 20:00" }, { day: "Tuesday", time: "Closed" }]
-  hours: []
+  hours: [
+    { day: "Tuesday to Saturday", time: "From 12:00 pm" },
+    { day: "Sunday and Monday", time: "Closed" }
+  ]
 };
 
 (function () {
