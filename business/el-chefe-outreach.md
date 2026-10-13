@@ -1,7 +1,7 @@
 # Taqueria El Chefe, Calgary: холодное предложение сайта
 
 Тексты на английском (и один на испанском). Пояснения для владельца по-русски, в блоках "Заметка".
-Переменные: [NAME], hello@dflust.com, https://elchefe.dflust.com, CA$690, CA$49. Подставь перед отправкой.
+Переменные: Oleh, hello@dflust.com, https://elchefe.dflust.com, CA$690, CA$49. Подставь перед отправкой.
 Ничего не отправлено.
 
 Факты, на которые опираюсь: Google 4.6 и 1,647 отзывов; в карточке нет сайта, только ссылка на Instagram; есть онлайн-заказ через DoorDash Storefront; демо с 18 позициями, отзывами, адресом, картой и панелью Call / Directions / Order online; видео 30 секунд; запуск за ~3 дня после материалов.
@@ -13,7 +13,7 @@
 Выбери одну из двух первых строк. Остальной текст общий.
 
 **Первая строка A (рекомендую):**
-> Hi, I'm [NAME]. I made a website for El Chefe and it's ready to look at.
+> Hi, I'm Oleh. I made a website for El Chefe and it's ready to look at.
 
 **Первая строка B:**
 > Hi El Chefe team. Your Google listing has 1,647 reviews and no website, only a link to Instagram.
@@ -25,7 +25,7 @@
 >
 > If it's not for you, tell me and I won't message again.
 >
-> [NAME], hello@dflust.com
+> Oleh, hello@dflust.com
 
 **Заметка:**
 - Первая строка A говорит, что работа уже сделана. Это главный довод, и он стоит до любых оправданий.
@@ -37,7 +37,7 @@
 ## 2. Испанская версия DM
 
 **Первая строка A:**
-> Hola, soy [NAME]. Hice un sitio web para El Chefe y ya está listo para verlo.
+> Hola, soy Oleh. Hice un sitio web para El Chefe y ya está listo para verlo.
 
 **Первая строка B:**
 > Hola, equipo de El Chefe. Su ficha de Google tiene 1,647 reseñas y no tiene sitio web, solo un enlace a Instagram.
@@ -49,7 +49,7 @@
 >
 > Si no les interesa, avísenme y no vuelvo a escribir.
 >
-> [NAME], hello@dflust.com
+> Oleh, hello@dflust.com
 
 **Заметка:** испанский нейтральный, "ustedes". Слова Call / Directions / Order online оставил по-английски, так они выглядят на панели сайта. Если на сайте нет испанской версии, не обещай её.
 
@@ -66,7 +66,7 @@
 **Текст:**
 > Hi,
 >
-> I'm [NAME]. I build simple websites for local restaurants. I made one for Taqueria El Chefe, because your Google listing (4.6, 1,647 reviews) links only to Instagram.
+> I'm Oleh. I build simple websites for local restaurants. I made one for Taqueria El Chefe, because your Google listing (4.6, 1,647 reviews) links only to Instagram.
 >
 > What's on it:
 > - the 18-item menu, with the same prices as your online order
@@ -82,7 +82,7 @@
 >
 > If this isn't for you, reply "no" and I won't write again.
 >
-> [NAME]
+> Oleh
 > hello@dflust.com
 > [POSTAL ADDRESS]
 >
@@ -97,7 +97,7 @@
 
 ## 4. Напоминание через 3-4 дня (DM)
 
-> Hi, [NAME] again. I sent a link to a website I made for El Chefe a few days ago, in case it got buried.
+> Hi, Oleh again. I sent a link to a website I made for El Chefe a few days ago, in case it got buried.
 >
 > Demo: https://elchefe.dflust.com. The quickest look is on your phone: the Call / Directions / Order online bar sits at the bottom of the screen.
 >
@@ -109,7 +109,7 @@
 
 ## 5. Последнее сообщение через 7-10 дней
 
-> Last message from me, [NAME]. The El Chefe demo stays up for two more weeks: https://elchefe.dflust.com.
+> Last message from me, Oleh. The El Chefe demo stays up for two more weeks: https://elchefe.dflust.com.
 >
 > If you ever want it on your own domain, message me at hello@dflust.com. Setup takes about 3 days once I have your photos, hours and menu check.
 >
@@ -139,7 +139,7 @@
 **Заметка:** "три вещи" взято из условий владельца (фото, часы, подтверждение меню). "Slow week" можно убрать, если звучит как давление.
 
 ### "Who are you? You're not in Calgary"
-> I'm [NAME], contact hello@dflust.com. I'm a web designer from Ukraine and I work online with small businesses. Everything works online: you see the demo, send photos by message, and the site goes on a domain you own. You can call or message me any time, and I'm happy to send my other work if you'd like to see it.
+> I'm Oleh, contact hello@dflust.com. I'm a web designer from Ukraine and I work online with small businesses. Everything works online: you see the demo, send photos by message, and the site goes on a domain you own. You can call or message me any time, and I'm happy to send my other work if you'd like to see it.
 
 **Заметка:** [уточнить: где ты, есть ли портфолио]. Не выдумываю локацию и клиентов. Если портфолио нет, убери последнюю фразу. Честный ответ лучше, чем вымышленный "мы в Калгари".
 
@@ -147,7 +147,7 @@
 
 ## 7. Скрипт звонка (30 секунд)
 
-> "Hi, is this the owner or manager? I'm [NAME]. I sent a message on Instagram about a website I made for El Chefe. Do you have thirty seconds?
+> "Hi, is this the owner or manager? I'm Oleh. I sent a message on Instagram about a website I made for El Chefe. Do you have thirty seconds?
 >
 > Your Google listing has no website, so I built one: the 18-item menu with your prices, reviews, a map, and a Call / Directions / Order online bar on phones. The order button goes to your DoorDash page.
 >
@@ -194,7 +194,7 @@ The domain is registered in your name in both options. With option A, the site f
 No sales numbers and no Google ranking. The site gives people the menu, the map and the phone number in one place.
 
 **Contact**
-[NAME], hello@dflust.com
+Oleh, hello@dflust.com
 If you don't want to hear from me again, reply "stop".
 
 **Заметка:** строки с [уточнить] нужно закрыть до отправки. Владелец дал: цены A/B, бесплатный хостинг, домен на их имя, 12 месяцев, 3 дня. Остальное я не придумывал.
