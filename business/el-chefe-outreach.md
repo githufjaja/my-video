@@ -1,7 +1,7 @@
 # Taqueria El Chefe, Calgary: холодное предложение сайта
 
 Тексты на английском (и один на испанском). Пояснения для владельца по-русски, в блоках "Заметка".
-Переменные: [NAME], [CONTACT], [DEMO_LINK], [PRICE_ONETIME], [PRICE_MONTHLY]. Подставь перед отправкой.
+Переменные: [NAME], hello@dflust.com, https://elchefe.dflust.com, CA$690, CA$49. Подставь перед отправкой.
 Ничего не отправлено.
 
 Факты, на которые опираюсь: Google 4.6 и 1,647 отзывов; в карточке нет сайта, только ссылка на Instagram; есть онлайн-заказ через DoorDash Storefront; демо с 18 позициями, отзывами, адресом, картой и панелью Call / Directions / Order online; видео 30 секунд; запуск за ~3 дня после материалов.
@@ -21,11 +21,11 @@
 **Остальной текст:**
 > I built one: your 18-item menu with the prices from your online order, reviews, address, a map, and on phones a Call / Directions / Order online bar. The order button goes to your DoorDash page.
 >
-> Demo: [DEMO_LINK] (it's marked "Website concept, not the official site yet" and isn't listed in search). There's also a short video if you'd rather watch.
+> Demo: https://elchefe.dflust.com (it's marked "Website concept, not the official site yet" and isn't listed in search). There's also a short video if you'd rather watch.
 >
 > If it's not for you, tell me and I won't message again.
 >
-> [NAME], [CONTACT]
+> [NAME], hello@dflust.com
 
 **Заметка:**
 - Первая строка A говорит, что работа уже сделана. Это главный довод, и он стоит до любых оправданий.
@@ -45,11 +45,11 @@
 **Остальной текст:**
 > Les hice uno: su menú de 18 platillos con los precios de su pedido en línea, reseñas, dirección, mapa y, en el celular, una barra con Call / Directions / Order online. El botón de pedido lleva a su página de DoorDash.
 >
-> Demo: [DEMO_LINK] (está marcado como "Website concept" y no aparece en buscadores). También hay un video corto.
+> Demo: https://elchefe.dflust.com (está marcado como "Website concept" y no aparece en buscadores). También hay un video corto.
 >
 > Si no les interesa, avísenme y no vuelvo a escribir.
 >
-> [NAME], [CONTACT]
+> [NAME], hello@dflust.com
 
 **Заметка:** испанский нейтральный, "ustedes". Слова Call / Directions / Order online оставил по-английски, так они выглядят на панели сайта. Если на сайте нет испанской версии, не обещай её.
 
@@ -76,14 +76,14 @@
 >
 > The Order online button goes to your DoorDash page, so orders keep coming the way they do now.
 >
-> Demo: [DEMO_LINK]. It carries a "Website concept, not the official site yet" label and isn't listed in search, so nobody will find it by accident. Here is a short video of it: [VIDEO_LINK].
+> Demo: https://elchefe.dflust.com. It carries a "Website concept, not the official site yet" label and isn't listed in search, so nobody will find it by accident. Here is a short video of it: [VIDEO_LINK].
 >
 > If you like it, it can go live on your own domain about 3 days after you send photos, hours and a menu check. You pay only once it works on your domain and you're happy with it. I can send a one-page summary of the terms.
 >
 > If this isn't for you, reply "no" and I won't write again.
 >
 > [NAME]
-> [CONTACT]
+> hello@dflust.com
 > [POSTAL ADDRESS]
 >
 > To stop getting messages from me, reply "stop".
@@ -99,7 +99,7 @@
 
 > Hi, [NAME] again. I sent a link to a website I made for El Chefe a few days ago, in case it got buried.
 >
-> Demo: [DEMO_LINK]. The quickest look is on your phone: the Call / Directions / Order online bar sits at the bottom of the screen.
+> Demo: https://elchefe.dflust.com. The quickest look is on your phone: the Call / Directions / Order online bar sits at the bottom of the screen.
 >
 > Not interested? Say so and I'll stop.
 
@@ -109,9 +109,9 @@
 
 ## 5. Последнее сообщение через 7-10 дней
 
-> Last message from me, [NAME]. The El Chefe demo stays up for now: [DEMO_LINK].
+> Last message from me, [NAME]. The El Chefe demo stays up for two more weeks: https://elchefe.dflust.com.
 >
-> If you ever want it on your own domain, message me at [CONTACT]. Setup takes about 3 days once I have your photos, hours and menu check.
+> If you ever want it on your own domain, message me at hello@dflust.com. Setup takes about 3 days once I have your photos, hours and menu check.
 >
 > Good luck with the birria.
 
@@ -126,8 +126,9 @@
 
 ### "How much is it? / Too expensive"
 > Two options.
-> A) [PRICE_ONETIME], one time. You pay only when the site is running on your domain and you like it. Hosting is free. The domain is registered in your name and costs about $20 to $30 a year.
-> B) [PRICE_MONTHLY] a month, with hosting and changes to menu, prices and hours. Minimum 12 months.
+> A) CA$690, one time. You pay only when the site is running on your domain and you like it. Hosting is free. The domain is registered in your name and costs about $20 to $30 a year.
+> B) CA$49 a month, with hosting and changes to menu, prices and hours included. Minimum 12 months.
+> With option A, changes after launch are CA$30 each.
 > Look at the demo first. If it isn't worth that to you, no hard feelings.
 
 **Заметка:** "$20-30 в год" только для варианта A, как сказал владелец. [уточнить: домен в варианте B тоже на их имя и кто платит?]
@@ -138,7 +139,7 @@
 **Заметка:** "три вещи" взято из условий владельца (фото, часы, подтверждение меню). "Slow week" можно убрать, если звучит как давление.
 
 ### "Who are you? You're not in Calgary"
-> I'm [NAME], contact [CONTACT]. I [уточнить: где находишься и чем занимаешься в одну фразу]. Everything works online: you see the demo, send photos by message, and the site goes on a domain you own. You can call or message me any time, and I'm happy to send my other work if you'd like to see it.
+> I'm [NAME], contact hello@dflust.com. I'm a web designer from Ukraine and I work online with small businesses. Everything works online: you see the demo, send photos by message, and the site goes on a domain you own. You can call or message me any time, and I'm happy to send my other work if you'd like to see it.
 
 **Заметка:** [уточнить: где ты, есть ли портфолио]. Не выдумываю локацию и клиентов. Если портфолио нет, убери последнюю фразу. Честный ответ лучше, чем вымышленный "мы в Калгари".
 
@@ -166,17 +167,17 @@
 2316 27 Ave NE #8, Calgary
 
 **What it is**
-A one-page website for your takeout menu: 18 items with prices matching your online order, your Google reviews, address, map, and a phone bar with Call / Directions / Order online. The order button goes to your DoorDash page. A demo is ready: [DEMO_LINK].
+A one-page website for your takeout menu: 18 items with prices matching your online order, your Google reviews, address, map, and a phone bar with Call / Directions / Order online. The order button goes to your DoorDash page. A demo is ready: https://elchefe.dflust.com.
 
 **Two ways to do it**
 
 | | Option A | Option B |
 |---|---|---|
-| Price | [PRICE_ONETIME], one time | [PRICE_MONTHLY] per month, minimum 12 months |
+| Price | CA$690, one time | CA$49 per month, minimum 12 months |
 | When you pay | Only when the site works on your domain and you're happy with it | Monthly |
 | Hosting | Free | Included |
-| Changes to menu, prices, hours | [уточнить: входят ли правки в A и сколько стоят] | Included |
-| Domain | Registered in your name, about $20 to $30 per year | [уточнить: на чьё имя и кто платит] |
+| Changes to menu, prices, hours | CA$30 per change | Included |
+| Domain | Registered in your name, about $20 to $30 per year | Registered in your name, about $20 to $30 per year |
 
 **What I need from you**
 1. A few photos of the food and the place.
@@ -187,13 +188,13 @@ A one-page website for your takeout menu: 18 items with prices matching your onl
 About 3 days from the day I have those three things to a live site on your domain.
 
 **Who owns what**
-The domain is registered in your name. [уточнить: кому принадлежит сайт (файлы, контент) в A и в B, и что происходит после окончания 12 месяцев B. Без этого раздел не отправлять.]
+The domain is registered in your name in both options. With option A, the site files are yours once you pay. With option B, after the first 12 months you can stop with 30 days' notice and keep the domain and the site files.
 
 **What I don't promise**
 No sales numbers and no Google ranking. The site gives people the menu, the map and the phone number in one place.
 
 **Contact**
-[NAME], [CONTACT]
+[NAME], hello@dflust.com
 If you don't want to hear from me again, reply "stop".
 
 **Заметка:** строки с [уточнить] нужно закрыть до отправки. Владелец дал: цены A/B, бесплатный хостинг, домен на их имя, 12 месяцев, 3 дня. Остальное я не придумывал.
