@@ -1,0 +1,595 @@
+<title>QR-студия dflust</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: preview "stage" pinned left, control groups stacked right; one column on phones */
+:root {
+  --bg: #f3f2f6;
+  --panel: #ffffff;
+  --stage: #e9e7ee;
+  --fg: #19171d;
+  --muted: #67636f;
+  --line: #e0dde6;
+  --accent: #d0346c;
+  --accent-ink: #ffffff;
+  --ok: #1d8a4e;
+  --ok-bg: #e3f4ea;
+  --bad: #c43a3a;
+  --bad-bg: #fbe6e6;
+  --font-display: "Unbounded", "Manrope", system-ui, sans-serif;
+  --font-body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121116; --panel: #1b1a21; --stage: #24222b; --fg: #f1eff5; --muted: #a39fae;
+    --line: #2e2c36; --accent: #ff6c9c; --accent-ink: #1a0b11;
+    --ok: #5fd193; --ok-bg: #173323; --bad: #ff8a8a; --bad-bg: #3a1d1f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121116; --panel: #1b1a21; --stage: #24222b; --fg: #f1eff5; --muted: #a39fae;
+  --line: #2e2c36; --accent: #ff6c9c; --accent-ink: #1a0b11;
+  --ok: #5fd193; --ok-bg: #173323; --bad: #ff8a8a; --bad-bg: #3a1d1f;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  padding: 24px 16px 48px;
+}
+.wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 20px; }
+header h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(22px, 4vw, 30px); margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+header p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 420px); gap: 20px; align-items: start; }
+@media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+.stage-col { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); display: grid; gap: 12px; }
+@media (max-width: 860px) { .stage-col { position: static; } }
+.stage {
+  background-color: var(--stage);
+  background-image: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--muted) 22%, transparent) 1px, transparent 0);
+  background-size: 18px 18px;
+  border-radius: 20px; padding: clamp(12px, 3vw, 28px); display: grid; place-items: center;
+}
+.stage img { width: 100%; max-width: 520px; aspect-ratio: 1; display: block; -webkit-touch-callout: default; }
+.status { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; font-weight: 600; font-size: 14px; min-width: 0; }
+.status span { min-width: 0; overflow-wrap: anywhere; }
+.status.ok { background: var(--ok-bg); color: var(--ok); }
+.status.bad { background: var(--bad-bg); color: var(--bad); }
+.status.wait { background: var(--panel); color: var(--muted); border: 1px solid var(--line); }
+.status .dot { width: 10px; height: 10px; border-radius: 50%; background: currentColor; flex: none; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.hint { color: var(--muted); font-size: 13px; }
+
+.controls { display: grid; gap: 14px; }
+fieldset { margin: 0; border: 1px solid var(--line); background: var(--panel); border-radius: 16px; padding: 14px 16px 16px; display: grid; gap: 12px; min-width: 0; }
+legend { font-family: var(--font-display); font-weight: 500; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); padding: 0 6px; margin-left: -6px; }
+label.f { display: grid; gap: 6px; font-weight: 600; font-size: 13px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.row > label.f { flex: 1 1 100px; }
+input[type=text], textarea {
+  width: 100%; font: inherit; font-weight: 500; color: var(--fg); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+}
+textarea { min-height: 120px; resize: vertical; font-size: 13px; line-height: 1.45; }
+input[type=color] { width: 100%; height: 40px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); padding: 3px; cursor: pointer; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+input[type=file] { font: inherit; font-size: 13px; max-width: 100%; color: var(--muted); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button, .chip {
+  font: inherit; font-size: 13px; font-weight: 600; color: var(--fg); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; cursor: pointer;
+}
+.seg button[aria-pressed="true"], .chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.chip { display: inline-flex; align-items: center; gap: 8px; }
+.chip i { width: 14px; height: 14px; border-radius: 50%; display: inline-block; border: 1px solid color-mix(in srgb, var(--fg) 20%, transparent); }
+.toggle { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; cursor: pointer; }
+.toggle input { width: 18px; height: 18px; accent-color: var(--accent); }
+.btn {
+  font: inherit; font-weight: 700; font-size: 14px; border-radius: 12px; padding: 11px 18px; cursor: pointer;
+  border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink);
+}
+.btn.ghost { background: transparent; color: var(--fg); border-color: var(--line); }
+.sub { font-size: 13px; color: var(--muted); margin: 0; }
+.result { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+.result.ok { color: var(--ok); } .result.bad { color: var(--bad); }
+.slider-label { display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; }
+.slider-label output { color: var(--muted); font-weight: 500; }
+@media (prefers-reduced-motion: no-preference) { .btn, .seg button, .chip { transition: background .15s, color .15s, border-color .15s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>QR-студия dflust</h1>
+    <p>Ссылка, персонаж в центре, цвет и объём. Каждое изменение сразу проверяется сканером: зелёная плашка значит, что телефон прочитает код.</p>
+  </header>
+
+  <div class="layout">
+    <div class="stage-col">
+      <div class="stage"><img id="preview" alt="Готовый QR-код"></div>
+      <div id="status" class="status wait"><i class="dot"></i><span>Рисую…</span></div>
+      <div class="actions">
+        <button class="btn" id="save" type="button">Скачать PNG</button>
+        <span class="hint" id="saveHint">PNG 1600×1600, хватает для наклейки до 8 см.</span>
+      </div>
+    </div>
+
+    <form class="controls" id="form" autocomplete="off">
+      <fieldset>
+        <legend>Ссылка</legend>
+        <label class="f" for="url">Куда ведёт код
+          <input type="text" id="url" value="https://dflust.com" inputmode="url" spellcheck="false">
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Стиль</legend>
+        <div class="seg" id="presets" role="group" aria-label="Готовые стили"></div>
+        <label class="f">Форма точек
+          <div class="seg" data-key="shape" role="group">
+            <button type="button" data-v="liquid">Капли</button>
+            <button type="button" data-v="dots">Точки</button>
+            <button type="button" data-v="square">Квадраты</button>
+          </div>
+        </label>
+        <label class="f">Угловые квадраты
+          <div class="seg" data-key="eye" role="group">
+            <button type="button" data-v="soft">Мягкие</button>
+            <button type="button" data-v="round">Круглые</button>
+            <button type="button" data-v="square">Острые</button>
+          </div>
+        </label>
+        <div class="row">
+          <label class="f" for="cDots">Точки<input type="color" id="cDots"></label>
+          <label class="f" for="cEyes">Углы<input type="color" id="cEyes"></label>
+          <label class="f" for="cCard">Карточка<input type="color" id="cCard"></label>
+        </div>
+        <label class="toggle" for="fx3d"><input type="checkbox" id="fx3d"> Объём, блик и тень</label>
+        <label class="toggle" for="sparkles"><input type="checkbox" id="sparkles"> Искорки по краям</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Центр</legend>
+        <div class="seg" data-key="center" role="group" aria-label="Что в центре">
+          <button type="button" data-v="none">Ничего</button>
+          <button type="button" data-v="heart">Сердце</button>
+          <button type="button" data-v="image">Своя картинка</button>
+        </div>
+        <label class="f" for="file" id="fileWrap">Картинка или фото персонажа
+          <input type="file" id="file" accept="image/*">
+        </label>
+        <div id="imgControls" class="controls" style="gap:12px">
+          <label class="f">Рамка
+            <div class="seg" data-key="frame" role="group">
+              <button type="button" data-v="circle">Круг</button>
+              <button type="button" data-v="rounded">Скруглённая</button>
+              <button type="button" data-v="free">Без рамки (PNG без фона)</button>
+            </div>
+          </label>
+          <label class="f" for="zoom"><span class="slider-label">Приблизить <output id="zoomOut"></output></span><input type="range" id="zoom" min="1" max="4" step="0.05"></label>
+          <label class="f" for="ox"><span class="slider-label">Сдвиг влево / вправо <output id="oxOut"></output></span><input type="range" id="ox" min="-1" max="1" step="0.01"></label>
+          <label class="f" for="oy"><span class="slider-label">Сдвиг вверх / вниз <output id="oyOut"></output></span><input type="range" id="oy" min="-1" max="1" step="0.01"></label>
+          <label class="toggle" for="ring"><input type="checkbox" id="ring"> Обводка цветом точек</label>
+        </div>
+        <label class="f" for="size" id="sizeWrap"><span class="slider-label">Размер центра <output id="sizeOut"></output></span><input type="range" id="size" min="0.14" max="0.36" step="0.01"></label>
+        <p class="sub">Код рисуется с максимальным запасом (уровень H): центр до трети ширины не мешает сканированию.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Вариант через ИИ</legend>
+        <p class="sub">Если хотите, чтобы ИИ перерисовал весь код целиком: скачайте чистый QR, загрузите его в генератор вместе с промптом, а результат проверьте здесь же.</p>
+        <div class="actions">
+          <button class="btn ghost" id="plain" type="button">Скачать чистый QR</button>
+          <button class="btn ghost" id="copy" type="button">Скопировать промпт</button>
+        </div>
+        <label class="f" for="who">Кто в центре (для промпта)
+          <input type="text" id="who" value="Itachi Uchiha with a black crow, anime style">
+        </label>
+        <textarea id="prompt" readonly aria-label="Промпт"></textarea>
+        <label class="f" for="checkFile">Проверить готовую картинку
+          <input type="file" id="checkFile" accept="image/*">
+        </label>
+        <div id="checkResult" class="result" aria-live="polite"></div>
+      </fieldset>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script>
+(() => {
+  const PRESETS = {
+    kawaii:  { name: "Кавай розовый", dots: "#e8678c", eyes: "#e8678c", card: "#ffffff", fx3d: true,  sparkles: true,  shape: "liquid", eye: "soft" },
+    akatsuki:{ name: "Акацуки",       dots: "#a8141e", eyes: "#141216", card: "#ffffff", fx3d: true,  sparkles: false, shape: "liquid", eye: "soft" },
+    dflust:  { name: "dflust",        dots: "#141414", eyes: "#141414", card: "#ffffff", fx3d: false, sparkles: false, shape: "square", eye: "square" },
+    mint:    { name: "Мята",          dots: "#2a9d7f", eyes: "#1f7a62", card: "#f4fffb", fx3d: true,  sparkles: true,  shape: "dots",   eye: "round" },
+    lavender:{ name: "Лаванда",       dots: "#8a63d2", eyes: "#6c45b8", card: "#ffffff", fx3d: true,  sparkles: true,  shape: "liquid", eye: "soft" },
+  };
+  const DEFAULTS = Object.assign({ url: "https://dflust.com", preset: "kawaii", center: "heart", frame: "circle", size: 0.3, zoom: 1, ox: 0, oy: 0, ring: true, who: "Itachi Uchiha with a black crow, anime style" }, PRESETS.kawaii);
+  delete DEFAULTS.name;
+  const SAVED_KEYS = ["url","preset","dots","eyes","card","fx3d","sparkles","shape","eye","center","frame","size","zoom","ox","oy","ring","who"];
+
+  let st = Object.assign({}, DEFAULTS);
+  try { const s = JSON.parse(localStorage.getItem("qr-studio") || "null"); if (s) for (const k of SAVED_KEYS) if (k in s) st[k] = s[k]; } catch (e) {}
+  if (st.center === "image") st.center = "heart"; // картинка не хранится между заходами
+
+  let userImg = null;
+  const $ = id => document.getElementById(id);
+  const OUT = 1600;
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = OUT;
+  const ctx = canvas.getContext("2d");
+
+  /* ---------- colours ---------- */
+  const rgb = h => { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+  const mixRGB = (h, t, a) => { const d = t === "w" ? 255 : 0; return rgb(h).map(v => Math.round(v + (d - v) * a)); };
+  const mix = (h, t, a) => `rgb(${mixRGB(h, t, a).join(",")})`;
+  const rgba = (h, a) => `rgba(${rgb(h).join(",")},${a})`;
+
+  /* ---------- QR matrix ---------- */
+  function matrix(text) {
+    if (qrcode.stringToBytesFuncs && qrcode.stringToBytesFuncs["UTF-8"]) qrcode.stringToBytes = qrcode.stringToBytesFuncs["UTF-8"];
+    const q = qrcode(0, "H");
+    q.addData(text || " ");
+    q.make();
+    const n = q.getModuleCount();
+    const m = [];
+    for (let r = 0; r < n; r++) { m.push([]); for (let c = 0; c < n; c++) m[r].push(q.isDark(r, c)); }
+    return m;
+  }
+  const inFinder = (r, c, n) => (r < 7 && c < 7) || (r < 7 && c >= n - 7) || (r >= n - 7 && c < 7);
+  // centres of the small 5×5 alignment patterns (same rule as the QR spec table)
+  function alignCenters(n) {
+    const ver = (n - 17) / 4;
+    if (ver < 2) return [];
+    const num = Math.floor(ver / 7) + 2;
+    const step = ver === 32 ? 26 : Math.ceil((ver * 4 + 4) / (num * 2 - 2)) * 2;
+    const pos = [6];
+    for (let p = n - 7; pos.length < num; p -= step) pos.splice(1, 0, p);
+    const out = [];
+    for (const r of pos) for (const c of pos) if (!inFinder(r, c, n)) out.push([r, c]);
+    return out;
+  }
+
+  /* ---------- shapes ---------- */
+  function rrect(p, x, y, w, h, tl, tr, br, bl) {
+    p.moveTo(x + tl, y);
+    p.lineTo(x + w - tr, y); if (tr) p.quadraticCurveTo(x + w, y, x + w, y + tr);
+    p.lineTo(x + w, y + h - br); if (br) p.quadraticCurveTo(x + w, y + h, x + w - br, y + h);
+    p.lineTo(x + bl, y + h); if (bl) p.quadraticCurveTo(x, y + h, x, y + h - bl);
+    p.lineTo(x, y + tl); if (tl) p.quadraticCurveTo(x, y, x + tl, y);
+    p.closePath();
+  }
+  function heartPath(cx, cy, s) {
+    const p = new Path2D();
+    p.moveTo(cx, cy + s * 0.42);
+    p.bezierCurveTo(cx - s * 0.62, cy + s * 0.02, cx - s * 0.5, cy - s * 0.52, cx, cy - s * 0.2);
+    p.bezierCurveTo(cx + s * 0.5, cy - s * 0.52, cx + s * 0.62, cy + s * 0.02, cx, cy + s * 0.42);
+    p.closePath();
+    return p;
+  }
+  function sparkle(p, x, y, s) {
+    p.moveTo(x, y - s);
+    p.quadraticCurveTo(x, y, x + s, y); p.quadraticCurveTo(x, y, x, y + s);
+    p.quadraticCurveTo(x, y, x - s, y); p.quadraticCurveTo(x, y, x, y - s);
+    p.closePath();
+  }
+
+  /* fill a path, optionally with glossy volume. The bevel is built from masks (fills only),
+     so merged modules get one smooth outline with no seams between cells. */
+  const layer = document.createElement("canvas"), edge = document.createElement("canvas");
+  layer.width = layer.height = edge.width = edge.height = OUT;
+  const lx = layer.getContext("2d"), ex = edge.getContext("2d");
+  function bevel(path, rule, tint, alpha, dx, dy, blur) {
+    ex.setTransform(1, 0, 0, 1, 0, 0);
+    ex.globalCompositeOperation = "source-over";
+    ex.clearRect(0, 0, OUT, OUT);
+    ex.fillStyle = tint; ex.fillRect(0, 0, OUT, OUT);
+    ex.globalCompositeOperation = "destination-out";
+    ex.translate(dx, dy); ex.fill(path, rule);
+    lx.save();
+    lx.globalCompositeOperation = "source-atop";
+    lx.globalAlpha = alpha; lx.filter = `blur(${blur}px)`;
+    lx.drawImage(edge, 0, 0);
+    lx.restore();
+  }
+  function paint(path, color, unit, rule, fx) {
+    rule = rule || "nonzero";
+    if (!fx) { ctx.fillStyle = color; ctx.fill(path, rule); return; }
+    ctx.save();
+    ctx.shadowColor = `rgba(${mixRGB(color, "k", 0.3).join(",")},0.38)`;
+    ctx.shadowBlur = unit * 0.4; ctx.shadowOffsetY = unit * 0.2;
+    ctx.fillStyle = color; ctx.fill(path, rule);
+    ctx.restore();
+    lx.clearRect(0, 0, OUT, OUT);
+    const g = lx.createLinearGradient(0, 0, 0, OUT);
+    g.addColorStop(0, mix(color, "w", 0.12)); g.addColorStop(1, mix(color, "k", 0.06));
+    lx.fillStyle = g; lx.fill(path, rule);
+    const b = Math.max(1, unit * 0.1);
+    bevel(path, rule, "#ffffff", 0.55, unit * 0.1, unit * 0.13, b);
+    bevel(path, rule, mix(color, "k", 0.45), 0.4, -unit * 0.08, -unit * 0.12, b);
+    ctx.drawImage(layer, 0, 0);
+  }
+
+  /* ---------- render ---------- */
+  function render() {
+    const M = matrix(st.url.trim());
+    const n = M.length, quiet = 3;
+    const margin = OUT * 0.045, card = OUT - margin * 2;
+    const u = card / (n + quiet * 2);
+    const ox = margin + quiet * u, oy = ox;
+    const qrW = n * u;
+    ctx.clearRect(0, 0, OUT, OUT);
+
+    // card
+    ctx.save();
+    ctx.shadowColor = "rgba(20,10,30,0.22)"; ctx.shadowBlur = OUT * 0.03; ctx.shadowOffsetY = OUT * 0.012;
+    const cardP = new Path2D(); rrect(cardP, margin, margin, card, card, u * 1.6, u * 1.6, u * 1.6, u * 1.6);
+    ctx.fillStyle = st.card; ctx.fill(cardP);
+    ctx.restore();
+
+    // centre zone in px
+    const hasCenter = st.center === "heart" || (st.center === "image" && userImg);
+    const cs = qrW * st.size, cx = ox + qrW / 2, cy = oy + qrW / 2;
+    const clearR = cs / 2 + u * 0.55;
+    const freeImg = st.center === "image" && st.frame === "free";
+    const cleared = (r, c) => {
+      if (!hasCenter || freeImg) return false;
+      const x = ox + (c + 0.5) * u, y = oy + (r + 0.5) * u;
+      if (st.center === "image" && st.frame === "rounded") return Math.abs(x - cx) < clearR && Math.abs(y - cy) < clearR;
+      return Math.hypot(x - cx, y - cy) < clearR;
+    };
+    const aligns = alignCenters(n).filter(([r, c]) => !cleared(r, c));
+    const inAlign = (r, c) => aligns.some(([ar, ac]) => Math.abs(r - ar) <= 2 && Math.abs(c - ac) <= 2);
+    const on = (r, c) => r >= 0 && c >= 0 && r < n && c < n && M[r][c] && !inFinder(r, c, n) && !inAlign(r, c) && !cleared(r, c);
+
+    // data modules
+    const dots = new Path2D();
+    const rad = u * 0.5;
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+      const x = ox + c * u, y = oy + r * u;
+      if (on(r, c)) {
+        if (st.shape === "dots") { dots.moveTo(x + u * 0.92, y + u / 2); dots.arc(x + u / 2, y + u / 2, u * 0.42, 0, Math.PI * 2); }
+        else if (st.shape === "square") { rrect(dots, x - 0.3, y - 0.3, u + 0.6, u + 0.6, 0, 0, 0, 0); }
+        else {
+          const T = on(r - 1, c), B = on(r + 1, c), L = on(r, c - 1), R = on(r, c + 1);
+          rrect(dots, x, y, u, u, !T && !L ? rad : 0, !T && !R ? rad : 0, !B && !R ? rad : 0, !B && !L ? rad : 0);
+        }
+      } else if (st.shape === "liquid" && !inFinder(r, c, n) && !cleared(r, c)) {
+        // concave fillets where an L-shaped group bends around this empty cell
+        const fil = (px, py, ix, iy) => { dots.moveTo(px, py); dots.lineTo(px + ix * rad, py); dots.quadraticCurveTo(px, py, px, py + iy * rad); dots.closePath(); };
+        if (on(r - 1, c) && on(r, c - 1) && on(r - 1, c - 1)) fil(x, y, 1, 1);
+        if (on(r - 1, c) && on(r, c + 1) && on(r - 1, c + 1)) fil(x + u, y, -1, 1);
+        if (on(r + 1, c) && on(r, c + 1) && on(r + 1, c + 1)) fil(x + u, y + u, -1, -1);
+        if (on(r + 1, c) && on(r, c - 1) && on(r + 1, c - 1)) fil(x, y + u, 1, -1);
+      }
+    }
+    paint(dots, st.dots, u, "nonzero", st.fx3d);
+
+    // finder patterns
+    const ring = new Path2D(), eye = ring; // ring + eye in one even-odd path
+    for (const [fr, fc] of [[0, 0], [0, n - 7], [n - 7, 0]]) {
+      const x = ox + fc * u, y = oy + fr * u;
+      if (st.eye === "round") {
+        ring.moveTo(x + 7 * u, y + 3.5 * u); ring.arc(x + 3.5 * u, y + 3.5 * u, 3.5 * u, 0, Math.PI * 2);
+        ring.moveTo(x + 6 * u, y + 3.5 * u); ring.arc(x + 3.5 * u, y + 3.5 * u, 2.5 * u, 0, Math.PI * 2);
+        eye.moveTo(x + 5 * u, y + 3.5 * u); eye.arc(x + 3.5 * u, y + 3.5 * u, 1.5 * u, 0, Math.PI * 2);
+      } else {
+        const a = st.eye === "soft" ? 1 : 0;
+        rrect(ring, x, y, 7 * u, 7 * u, ...Array(4).fill(a * 2.1 * u));
+        rrect(ring, x + u, y + u, 5 * u, 5 * u, ...Array(4).fill(a * 1.3 * u));
+        rrect(eye, x + 2 * u, y + 2 * u, 3 * u, 3 * u, ...Array(4).fill(a * 0.9 * u));
+      }
+    }
+    paint(ring, st.eyes, u, "evenodd", st.fx3d);
+
+    // alignment patterns: drawn solid in every style so scanners lock on to them
+    if (aligns.length) {
+      const al = new Path2D(), a = st.eye === "square" ? 0 : 1;
+      for (const [ar, ac] of aligns) {
+        const x = ox + (ac - 2) * u, y = oy + (ar - 2) * u;
+        if (st.eye === "round") {
+          al.moveTo(x + 5 * u, y + 2.5 * u); al.arc(x + 2.5 * u, y + 2.5 * u, 2.5 * u, 0, Math.PI * 2);
+          al.moveTo(x + 4 * u, y + 2.5 * u); al.arc(x + 2.5 * u, y + 2.5 * u, 1.5 * u, 0, Math.PI * 2);
+          al.moveTo(x + 3 * u, y + 2.5 * u); al.arc(x + 2.5 * u, y + 2.5 * u, 0.5 * u, 0, Math.PI * 2);
+        } else {
+          rrect(al, x, y, 5 * u, 5 * u, ...Array(4).fill(a * 1.4 * u));
+          rrect(al, x + u, y + u, 3 * u, 3 * u, ...Array(4).fill(a * 0.8 * u));
+          rrect(al, x + 2 * u, y + 2 * u, u, u, ...Array(4).fill(a * 0.4 * u));
+        }
+      }
+      paint(al, st.dots, u, "evenodd", st.fx3d);
+    }
+
+    // sparkles in the outer band of the card
+    if (st.sparkles) {
+      const sp = new Path2D(), e = margin + u * 1.1, f = OUT - margin - u * 1.1;
+      [[e, OUT * 0.36, 0.5], [e, OUT * 0.62, 0.32], [f, OUT * 0.3, 0.38], [f, OUT * 0.7, 0.5], [OUT * 0.4, e, 0.36], [OUT * 0.66, f, 0.42]]
+        .forEach(([x, y, s]) => sparkle(sp, x, y, u * s * 1.6));
+      paint(sp, mix(st.dots, "w", 0.25), u * 0.6, "nonzero", false);
+    }
+
+    // centre
+    if (st.center === "heart") {
+      paint(heartPath(cx, cy + cs * 0.04, cs * 1.05), st.dots, u * 2.2, "nonzero", st.fx3d);
+    } else if (st.center === "image" && userImg) {
+      drawImage(cx, cy, cs, u);
+    }
+
+    canvas.toBlob(b => {
+      if (!b) return;
+      const img = $("preview"), prev = img.dataset.url, url = URL.createObjectURL(b);
+      img.src = url; img.dataset.url = url;
+      if (prev) setTimeout(() => URL.revokeObjectURL(prev), 1000);
+    }, "image/png");
+    scheduleCheck();
+  }
+
+  function drawImage(cx, cy, cs, u) {
+    const img = userImg, iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+    if (st.frame === "free") {
+      const k = Math.min(cs / iw, cs / ih) * st.zoom, w = iw * k, h = ih * k;
+      ctx.save();
+      if (st.fx3d) { ctx.shadowColor = "rgba(0,0,0,0.3)"; ctx.shadowBlur = u * 0.9; ctx.shadowOffsetY = u * 0.35; }
+      ctx.drawImage(img, cx - w / 2 + st.ox * cs * 0.5, cy - h / 2 + st.oy * cs * 0.5, w, h);
+      ctx.restore();
+      return;
+    }
+    const clip = new Path2D();
+    if (st.frame === "circle") clip.arc(cx, cy, cs / 2, 0, Math.PI * 2);
+    else rrect(clip, cx - cs / 2, cy - cs / 2, cs, cs, ...Array(4).fill(cs * 0.22));
+    ctx.save();
+    if (st.fx3d) { ctx.shadowColor = "rgba(0,0,0,0.28)"; ctx.shadowBlur = u * 0.9; ctx.shadowOffsetY = u * 0.3; }
+    ctx.fillStyle = st.card; ctx.fill(clip);
+    ctx.restore();
+    // cover-fit, then zoom and pan inside the frame
+    const k = Math.max(cs / iw, cs / ih) * st.zoom, w = iw * k, h = ih * k;
+    const dx = cx - w / 2 - st.ox * (w - cs) / 2, dy = cy - h / 2 - st.oy * (h - cs) / 2;
+    ctx.save(); ctx.clip(clip); ctx.drawImage(img, dx, dy, w, h);
+    if (st.fx3d) {
+      const g = ctx.createLinearGradient(0, cy - cs / 2, 0, cy + cs / 2);
+      g.addColorStop(0, "rgba(255,255,255,0.18)"); g.addColorStop(0.45, "rgba(255,255,255,0)"); g.addColorStop(1, "rgba(0,0,0,0.12)");
+      ctx.fillStyle = g; ctx.fill(clip);
+    }
+    ctx.restore();
+    if (st.ring) { ctx.save(); ctx.strokeStyle = st.dots; ctx.lineWidth = u * 0.32; ctx.stroke(clip); ctx.restore(); }
+  }
+
+  /* ---------- scan check: decode at print size and at "far away" size ---------- */
+  function decode(src, size) {
+    const c = document.createElement("canvas"); c.width = c.height = size;
+    const x = c.getContext("2d", { willReadFrequently: true });
+    x.fillStyle = "#c9c6cf"; x.fillRect(0, 0, size, size);
+    x.drawImage(src, 0, 0, size, size);
+    const d = x.getImageData(0, 0, size, size);
+    return jsQR(d.data, size, size, { inversionAttempts: "attemptBoth" });
+  }
+  let checkTimer = 0;
+  function scheduleCheck() {
+    setStatus("wait", "Проверяю сканирование…");
+    clearTimeout(checkTimer);
+    checkTimer = setTimeout(() => {
+      const want = st.url.trim();
+      const hits = [1000, 700, 480, 360].filter(s => { const r = decode(canvas, s); return r && r.data === want; }).length;
+      if (hits >= 3) setStatus("ok", "Сканируется → " + want);
+      else if (hits) setStatus("bad", "Читается через раз. Уменьшите центр, сделайте точки темнее или выключите искорки.");
+      else setStatus("bad", "Не сканируется. Уменьшите центр, смените форму точек или сделайте точки темнее.");
+    }, 250);
+  }
+  function setStatus(kind, text) { const s = $("status"); s.className = "status " + kind; s.querySelector("span").textContent = text; }
+
+  /* ---------- UI wiring ---------- */
+  const persist = () => { try { const o = {}; SAVED_KEYS.forEach(k => o[k] = st[k]); localStorage.setItem("qr-studio", JSON.stringify(o)); } catch (e) {} };
+  let raf = 0;
+  const update = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { syncUI(); render(); persist(); }); };
+
+  const presetBox = $("presets");
+  for (const [k, p] of Object.entries(PRESETS)) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.dataset.v = k;
+    const sw = document.createElement("i"); sw.style.background = p.dots;
+    b.append(sw, p.name);
+    b.addEventListener("click", () => { const { name, ...look } = p; Object.assign(st, look, { preset: k }); update(); });
+    presetBox.append(b);
+  }
+  document.querySelectorAll(".seg[data-key]").forEach(g => g.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    st[g.dataset.key] = b.dataset.v;
+    if (g.dataset.key === "center" && b.dataset.v === "image" && !userImg) $("file").click();
+    update();
+  }));
+  const bind = (id, key, num) => $(id).addEventListener("input", e => {
+    st[key] = num ? parseFloat(e.target.value) : e.target.value;
+    if (["cDots", "cEyes", "cCard"].includes(id)) st.preset = "";
+    update();
+  });
+  bind("url", "url"); bind("cDots", "dots"); bind("cEyes", "eyes"); bind("cCard", "card");
+  bind("size", "size", 1); bind("zoom", "zoom", 1); bind("ox", "ox", 1); bind("oy", "oy", 1);
+  $("who").addEventListener("input", e => { st.who = e.target.value; syncPrompt(); persist(); });
+  ["fx3d", "sparkles", "ring"].forEach(id => $(id).addEventListener("change", e => { st[id] = e.target.checked; update(); }));
+  $("form").addEventListener("submit", e => e.preventDefault());
+
+  function loadFile(file, cb) {
+    if (!file) return;
+    const img = new Image();
+    img.onload = () => cb(img);
+    img.onerror = () => cb(null);
+    img.src = URL.createObjectURL(file);
+  }
+  $("file").addEventListener("change", e => loadFile(e.target.files[0], img => {
+    if (!img) { setStatus("bad", "Не удалось открыть картинку. Попробуйте JPG или PNG."); return; }
+    userImg = img; st.center = "image"; st.zoom = 1; st.ox = 0; st.oy = 0; update();
+  }));
+
+  function syncUI() {
+    document.querySelectorAll(".seg[data-key]").forEach(g => g.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(st[g.dataset.key] === b.dataset.v))));
+    presetBox.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(st.preset === b.dataset.v)));
+    if ($("url").value !== st.url) $("url").value = st.url;
+    $("cDots").value = st.dots; $("cEyes").value = st.eyes; $("cCard").value = st.card;
+    $("fx3d").checked = st.fx3d; $("sparkles").checked = st.sparkles; $("ring").checked = st.ring;
+    $("size").value = st.size; $("sizeOut").textContent = Math.round(st.size * 100) + "% ширины";
+    $("zoom").value = st.zoom; $("zoomOut").textContent = "×" + (+st.zoom).toFixed(2);
+    $("ox").value = st.ox; $("oxOut").textContent = (+st.ox).toFixed(2);
+    $("oy").value = st.oy; $("oyOut").textContent = (+st.oy).toFixed(2);
+    if ($("who").value !== st.who) $("who").value = st.who;
+    $("imgControls").hidden = st.center !== "image";
+    $("fileWrap").hidden = st.center !== "image";
+    $("sizeWrap").hidden = st.center === "none";
+    $("ring").closest("label").hidden = st.frame === "free";
+    syncPrompt();
+  }
+  function syncPrompt() {
+    $("prompt").value =
+`Turn the attached QR code into a stylish 3D QR code with ${st.who || "a cute character"} in the center. Glossy volume, soft shadows, rounded merged modules, premium clean look, plain light background.
+Keep the QR code fully scannable: preserve all three corner finder squares and the exact module grid from the reference, keep high contrast between modules and background, the character covers no more than 25% of the code in the very center, do not add or remove modules.`;
+  }
+
+  /* ---------- downloads ---------- */
+  let downloads = null;
+  const saveBlob = async (blob, name) => {
+    if (!downloads) { $("saveHint").textContent = "Нажмите и удерживайте картинку → «Сохранить изображение»."; return; }
+    try { await downloads.save({ filename: name, data: blob }); $("saveHint").textContent = "Сохранено: " + name; }
+    catch (e) { $("saveHint").textContent = e && e.code === "declined" ? "Сохранение отменено." : "Не получилось. Нажмите и удерживайте картинку → «Сохранить изображение»."; }
+  };
+  const slug = () => (st.url.replace(/^https?:\/\//, "").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || "qr").slice(0, 40);
+  $("save").addEventListener("click", () => canvas.toBlob(b => b && saveBlob(b, `qr-${slug()}.png`), "image/png"));
+  $("plain").addEventListener("click", () => {
+    const M = matrix(st.url.trim()), n = M.length, q = 4, s = Math.floor(1200 / (n + q * 2));
+    const c = document.createElement("canvas"); c.width = c.height = s * (n + q * 2);
+    const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.fillStyle = "#000";
+    for (let r = 0; r < n; r++) for (let k = 0; k < n; k++) if (M[r][k]) x.fillRect((k + q) * s, (r + q) * s, s, s);
+    c.toBlob(b => b && saveBlob(b, `qr-clean-${slug()}.png`), "image/png");
+  });
+  $("copy").addEventListener("click", async () => {
+    const t = $("prompt"), b = $("copy");
+    try { await navigator.clipboard.writeText(t.value); b.textContent = "Скопировано"; }
+    catch (e) { t.focus(); t.select(); b.textContent = "Текст выделен, скопируйте"; }
+    setTimeout(() => b.textContent = "Скопировать промпт", 2200);
+  });
+  $("checkFile").addEventListener("change", e => loadFile(e.target.files[0], img => {
+    const out = $("checkResult");
+    if (!img) { out.className = "result bad"; out.textContent = "Не удалось открыть файл."; return; }
+    const w = img.naturalWidth, h = img.naturalHeight, size = Math.min(1400, Math.max(w, h));
+    const c = document.createElement("canvas"); c.width = c.height = size;
+    const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, size, size);
+    const k = size / Math.max(w, h);
+    x.drawImage(img, (size - w * k) / 2, (size - h * k) / 2, w * k, h * k);
+    const r = decode(c, size) || decode(c, Math.round(size / 2));
+    if (r) { out.className = "result ok"; out.textContent = "Сканируется → " + r.data; }
+    else { out.className = "result bad"; out.textContent = "QR не найден. Этот вариант лучше не печатать."; }
+  }));
+
+  function start() {
+    syncUI(); render();
+    const hook = () => window.claude && window.claude.use && window.claude.use("downloads").then(d => { downloads = d; }).catch(() => {});
+    if (!hook()) setTimeout(hook, 800);
+  }
+  if (window.qrcode && window.jsQR) start();
+  else window.addEventListener("load", () => (window.qrcode && window.jsQR) ? start() : setStatus("bad", "Не загрузились библиотеки. Обновите страницу."));
+})();
+</script>
