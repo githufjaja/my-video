@@ -112,6 +112,8 @@ Haiku ×1, Sonnet ×2, Opus ×4, Fable ×10):
 - `src/`, `remotion.config.ts` — проект Remotion (видео из кода): `npm run dev`, `npm run lint`.
 - `site/worker.js` — сайт dflust.com (Cloudflare Worker: лендинг, админка, кабинеты, редиректы).
   Перед отдачей владельцу: `node --check site/worker.js`; деплоит владелец сам.
+- `design/qr-studio.html` — QR-студия (красивые QR с картинкой). Живёт на dflust.com/fancyqr и как артефакт;
+  после правки: `node tools/build-qr-studio.cjs` (вшивает в `site/worker.js`) и снова `node --check`.
 - `games/` — игры Roblox (проекты Rojo); `games/_template/` — шаблон новой игры.
 - `tools/` — `transcribe.py` (голос → текст), `site-check.cjs` (проверка сайта),
   `roblox-check.sh` + `install-roblox-tools.sh` (проверка и сборка игр).

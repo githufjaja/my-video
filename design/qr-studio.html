@@ -551,10 +551,25 @@ Keep the QR code fully scannable: preserve all three corner finder squares and t
 
   /* ---------- downloads ---------- */
   let downloads = null;
+  const holdHint = "Если файл не появился: нажмите и удерживайте картинку → «Сохранить изображение».";
   const saveBlob = async (blob, name) => {
-    if (!downloads) { $("saveHint").textContent = "Нажмите и удерживайте картинку → «Сохранить изображение»."; return; }
-    try { await downloads.save({ filename: name, data: blob }); $("saveHint").textContent = "Сохранено: " + name; }
-    catch (e) { $("saveHint").textContent = e && e.code === "declined" ? "Сохранение отменено." : "Не получилось. Нажмите и удерживайте картинку → «Сохранить изображение»."; }
+    const hint = $("saveHint");
+    if (downloads) {
+      try { await downloads.save({ filename: name, data: blob }); hint.textContent = "Сохранено: " + name; }
+      catch (e) { hint.textContent = e && e.code === "declined" ? "Сохранение отменено." : holdHint; }
+      return;
+    }
+    // on a regular website: phones get the share sheet (→ Save to Photos), computers a normal download
+    const file = new File([blob], name, { type: "image/png" });
+    if (/Android|iPhone|iPad|Mobi/i.test(navigator.userAgent) && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file] }); hint.textContent = "Готово."; return; }
+      catch (e) { if (e && e.name === "AbortError") return; }
+    }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    hint.textContent = holdHint;
   };
   const slug = () => (st.url.replace(/^https?:\/\//, "").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || "qr").slice(0, 40);
   $("save").addEventListener("click", () => canvas.toBlob(b => b && saveBlob(b, `qr-${slug()}.png`), "image/png"));
